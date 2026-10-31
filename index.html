@@ -1,0 +1,846 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Materia Prima · La Vaca Original</title>
+<meta name="theme-color" content="#1E1A16">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#F5EFE4;--card:#FFFDF8;--ink:#1E1A16;--ink2:#5E554B;--line:#E6DCCB;
+  --brand:#7A1F2B;--brand2:#5A1520;--gold:#B08A4E;
+  --ok:#2F7A4B;--okbg:#E6F2EA;--warn:#B7791F;--warnbg:#FDF3D6;--warnline:#F0D27A;
+  --bad:#B42318;--badbg:#FDE7E4;--badline:#F4A39A;
+  --r:16px;--shadow:0 1px 2px rgba(30,26,22,.06),0 6px 20px rgba(30,26,22,.06);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Inter,system-ui,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+.serif{font-family:Fraunces,Georgia,serif}
+header{position:sticky;top:0;z-index:20;background:var(--ink);color:#F5EFE4;padding:14px 16px 12px;padding-top:calc(14px + env(safe-area-inset-top))}
+.hrow{display:flex;align-items:center;gap:12px;max-width:1100px;margin:0 auto}
+.logo{width:40px;height:40px;border-radius:12px;background:var(--brand);display:grid;place-items:center;flex:none}
+.brand{min-width:0}.brand h1{margin:0;font-family:Fraunces,serif;font-weight:700;font-size:18px;letter-spacing:.2px;white-space:nowrap}
+.brand small{display:block;font-size:10.5px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold);font-weight:600;white-space:nowrap}
+.who{margin-left:auto;display:flex;align-items:center;gap:8px}
+.chipbtn{background:rgba(245,239,228,.1);border:1px solid rgba(245,239,228,.18);color:#F5EFE4;border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer;white-space:nowrap;max-width:150px;overflow:hidden;text-overflow:ellipsis}
+.mode{font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:var(--gold);color:var(--ink);font-weight:700}
+@media(max-width:420px){.chipbtn{max-width:96px}.mode{display:none}}
+main{max-width:1100px;margin:0 auto;padding:16px 16px 110px}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px;box-shadow:var(--shadow);cursor:pointer;text-align:left}
+.kpi b{display:block;font-family:Fraunces,serif;font-size:28px;line-height:1.1}
+.kpi span{font-size:12px;color:var(--ink2)}
+.kpi.w{border-color:var(--warnline);background:var(--warnbg)} .kpi.w b{color:var(--warn)}
+.kpi.c{border-color:var(--badline);background:var(--badbg)} .kpi.c b{color:var(--bad)}
+.kpi.on{outline:2px solid var(--ink);outline-offset:1px}
+.tools{display:flex;gap:8px;margin-bottom:10px}
+.search{flex:1;display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:0 12px}
+.search input{border:0;outline:0;background:none;padding:11px 0;width:100%}
+.btn{border:0;border-radius:12px;padding:11px 16px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn.p{background:var(--brand);color:#fff} .btn.p:active{background:var(--brand2)}
+.btn.g{background:var(--card);border:1px solid var(--line)}
+.btn.d{background:var(--ink);color:#F5EFE4}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.cats{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:8px;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.cat{flex:none;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 13px;font-size:13px;cursor:pointer;white-space:nowrap}
+.cat.on{background:var(--ink);color:#F5EFE4;border-color:var(--ink)}
+.group{margin-top:16px}
+.group h3{font-family:Fraunces,serif;font-weight:500;font-size:17px;margin:0 0 8px;display:flex;align-items:baseline;gap:8px}
+.group h3 em{font-style:normal;font:500 12px Inter;color:var(--ink2)}
+.list{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
+.item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid var(--line);cursor:pointer;position:relative}
+.item:first-child{border-top:0}
+.item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:transparent}
+.item.w{background:linear-gradient(90deg,var(--warnbg),var(--card) 70%)} .item.w::before{background:var(--warn)}
+.item.c{background:linear-gradient(90deg,var(--badbg),var(--card) 70%)} .item.c::before{background:var(--bad)}
+.item .n{flex:1;min-width:0}
+.item .n b{display:block;font-weight:600;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .n span{font-size:12px;color:var(--ink2)}
+.item .q{text-align:right}
+.item .q b{display:block;font-family:Fraunces,serif;font-size:22px;line-height:1}
+.pill{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:3px 8px;border-radius:999px;margin-top:4px}
+.pill.ok{background:var(--okbg);color:var(--ok)} .pill.w{background:var(--warnbg);color:var(--warn);border:1px solid var(--warnline)} .pill.c{background:var(--badbg);color:var(--bad);border:1px solid var(--badline)}
+.empty{text-align:center;color:var(--ink2);padding:40px 16px}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
+nav .in{display:flex;max-width:600px;width:100%}
+nav button{flex:1;border:0;background:none;padding:10px 4px 9px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11.5px;color:var(--ink2);cursor:pointer;position:relative}
+nav button.on{color:var(--brand);font-weight:600}
+nav svg{width:22px;height:22px}
+.badge{position:absolute;top:5px;left:calc(50% + 6px);background:var(--bad);color:#fff;font-size:10px;font-weight:700;border-radius:999px;padding:1px 6px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;box-shadow:var(--shadow);margin-bottom:12px}
+.ptitle{font-family:Fraunces,serif;font-size:22px;margin:4px 0 4px}
+.psub{color:var(--ink2);font-size:13px;margin:0 0 12px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.field label{font-size:12px;font-weight:600;color:var(--ink2);letter-spacing:.3px}
+.field input,.field select,.field textarea{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 12px;outline:0;width:100%}
+.field input:focus,.field select:focus{border-color:var(--brand)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.srow{display:flex;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid var(--line)}
+.srow:first-child{border-top:0}
+.srow .n{flex:1;min-width:0}
+.srow .n b{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.srow .n span{font-size:12px;color:var(--ink2)}
+.srow input{width:84px;border:1px solid var(--line);border-radius:10px;padding:9px;text-align:center;background:#fff}
+.srow.has{background:#FBF6EC} .srow.has input{border-color:var(--brand);font-weight:700}
+.srow.err input{border-color:var(--bad);background:var(--badbg)}
+.sticky{position:fixed;left:0;right:0;bottom:calc(62px + env(safe-area-inset-bottom));z-index:15;display:flex;justify-content:center;padding:0 16px}
+.sticky .btn{width:100%;max-width:560px;box-shadow:0 8px 24px rgba(122,31,43,.35);padding:14px}
+.hist .day{font-family:Fraunces,serif;font-size:16px;margin:16px 0 6px}
+.mv{display:flex;gap:12px;padding:11px 14px;border-top:1px solid var(--line);align-items:flex-start}
+.mv:first-child{border-top:0}
+.mv .ic{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;flex:none;font-weight:700}
+.mv .ic.salida{background:var(--badbg);color:var(--bad)} .mv .ic.entrada{background:var(--okbg);color:var(--ok)} .mv .ic.ajuste,.mv .ic.alta{background:#EFE8DA;color:var(--ink2)}
+.mv .t{flex:1;min-width:0}
+.mv .t b{font-size:14px;font-weight:600}
+.mv .t div{font-size:12px;color:var(--ink2)}
+.mv .a{text-align:right;font-size:12px;color:var(--ink2);white-space:nowrap}
+.mv .a b{display:block;font-size:15px;color:var(--ink)}
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg{display:flex;background:#EFE8DA;border-radius:12px;padding:3px;gap:3px;margin-bottom:12px}
+.seg button{flex:1;border:0;background:none;border-radius:9px;padding:9px;font-weight:600;cursor:pointer;color:var(--ink2)}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+.seg button.on.salida{color:var(--bad)} .seg button.on.entrada{color:var(--ok)}
+dialog{border:0;border-radius:20px;padding:0;width:min(520px,calc(100% - 24px));background:var(--card);color:var(--ink);box-shadow:0 30px 80px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(30,26,22,.55);backdrop-filter:blur(2px)}
+.dh{padding:18px 18px 6px;display:flex;align-items:flex-start;gap:10px}
+.dh h2{margin:0;font-family:Fraunces,serif;font-size:21px;line-height:1.2}
+.dh p{margin:2px 0 0;color:var(--ink2);font-size:13px}
+.x{margin-left:auto;border:0;background:#EFE8DA;width:32px;height:32px;border-radius:10px;cursor:pointer;flex:none}
+.db{padding:10px 18px 18px}
+.big{display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:14px;padding:12px 14px;margin-bottom:12px}
+.big b{font-family:Fraunces,serif;font-size:30px}
+.link{background:none;border:0;color:var(--brand);font-weight:600;cursor:pointer;padding:6px 0}
+.toast{position:fixed;left:50%;bottom:140px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#F5EFE4;padding:11px 18px;border-radius:12px;opacity:0;transition:.25s;z-index:99;pointer-events:none;font-size:14px;max-width:90%}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--bad)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin:6px 0 2px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.hidden{display:none!important}
+.spin{width:28px;height:28px;border:3px solid var(--line);border-top-color:var(--brand);border-radius:50%;animation:s 0.8s linear infinite;margin:40px auto}
+@keyframes s{to{transform:rotate(360deg)}}
+@media(min-width:800px){.kpi b{font-size:34px}.lists2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}}
+
+.qty{display:flex;gap:6px}
+.qty input{flex:1;min-width:0}
+.qty select{flex:none;max-width:52%;border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 8px}
+.eq{font-size:12.5px;color:var(--ink2);margin:-2px 0 10px;min-height:18px}
+.eq b{color:var(--ink)}
+.sub{font-size:12px;color:var(--ink2);margin-top:2px}
+.item .q .sub{white-space:nowrap}
+.srow .qty{width:180px;flex:none}
+.srow .qty input{width:70px;flex:none;padding:9px 6px}
+.srow .qty select{max-width:none;flex:1;padding:9px 4px;font-size:12.5px;min-width:0}
+.pe{border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--bg);margin-bottom:10px}
+.pe .pr{display:grid;grid-template-columns:1fr 92px auto 30px;gap:6px;align-items:center;margin-bottom:6px}
+.pe .pr input{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 10px;width:100%;min-width:0}
+.pe .pr span{font-size:12px;color:var(--ink2);white-space:nowrap}
+.pe .pr button{border:0;background:#EFE8DA;border-radius:8px;height:30px;cursor:pointer}
+.pe .hint{font-size:12px;color:var(--ink2);margin:0 0 8px}
+.tag{display:inline-block;font-size:11px;background:#EFE8DA;color:var(--ink2);border-radius:6px;padding:1px 6px;margin-left:4px;font-weight:600}
+@media(max-width:400px){.srow .qty{width:160px}}
+.sticky#pedBar{max-width:none}.sticky#pedBar .btn{width:auto;max-width:none}.sticky#pedBar{justify-content:center}.sticky#pedBar>*:first-child{max-width:420px}
+.prow{display:flex;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid var(--line)}.prow:first-child{border-top:0}.prow .n{flex:1;min-width:0}.prow .n b{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.prow .n span{font-size:12px;color:var(--ink2)}.prow .qty{width:180px;flex:none}.prow .qty input{width:64px;flex:none;padding:9px 6px;text-align:center;border:1px solid var(--line);border-radius:10px;background:#fff}.prow .qty select{flex:1;min-width:0;max-width:none;padding:9px 4px;font-size:12.5px}.prow.has{background:#FBF6EC}.prow.has input{border-color:var(--brand);font-weight:700}.prow .rm{border:0;background:none;color:var(--ink2);cursor:pointer;font-size:16px;padding:4px}.pres{padding:10px 14px;border-top:1px solid var(--line);cursor:pointer}.pres:first-child{border-top:0}.pres b{font-size:14px}.pres span{font-size:12px;color:var(--ink2);margin-left:6px}
+.penv{padding:12px 14px;border-top:1px solid var(--line)}.penv:first-child{border-top:0}.penv .h{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--ink2)}.penv .h b{color:var(--ink);font-size:14px}.penv ul{margin:6px 0 0;padding-left:18px;font-size:13px}
+@media(max-width:400px){.prow .qty{width:160px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div class="logo" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F5EFE4" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5c1 2 2.5 3 4 3M20 5c-1 2-2.5 3-4 3"/><path d="M8 8h8c1.7 0 3 1.3 3 3v2c0 3.9-3.1 7-7 7s-7-3.1-7-7v-2c0-1.7 1.3-3 3-3z"/><circle cx="9.5" cy="12" r=".6" fill="#F5EFE4"/><circle cx="14.5" cy="12" r=".6" fill="#F5EFE4"/><path d="M10 16.5h4"/></svg>
+    </div>
+    <div class="brand"><h1>La Vaca Original</h1><small>Materia prima</small></div>
+    <div class="who">
+      <span id="modeTag" class="mode hidden">Demo</span>
+      <button class="chipbtn" id="whoBtn" title="Responsable">👤 <span id="whoName">—</span></button>
+      <button class="chipbtn" id="cfgBtn" title="Conexión" aria-label="Configuración">⚙︎</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="v-inv">
+    <div class="kpis">
+      <button class="kpi" data-st="all"><b id="kTotal">0</b><span>Insumos</span></button>
+      <button class="kpi w" data-st="w"><b id="kWarn">0</b><span>Por agotarse</span></button>
+      <button class="kpi c" data-st="c"><b id="kCrit">0</b><span>Críticos</span></button>
+    </div>
+    <div class="tools">
+      <label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity=".5"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" placeholder="Buscar insumo…" autocomplete="off"></label>
+      <button class="btn p" id="addBtn">＋ Nuevo</button>
+    </div>
+    <div class="cats" id="cats"></div>
+    <div class="legend"><span><i style="background:var(--ok)"></i>Suficiente</span><span><i style="background:var(--warn)"></i>Se está agotando</span><span><i style="background:var(--bad)"></i>Crítico · pedir urgente</span></div>
+    <div id="invList"><div class="spin"></div></div>
+  </section>
+
+  <section id="v-sal" class="hidden">
+    <h2 class="ptitle">Movimiento del día</h2>
+    <p class="psub">Escribe la cantidad y elige en qué viene: bulto, kilo, libra, caja, unidad… El sistema lo convierte solo.</p>
+    <div class="seg" id="batchSeg">
+      <button class="on salida" data-t="salida">Salidas</button>
+      <button data-t="entrada">Entradas</button>
+    </div>
+    <div class="panel">
+      <div class="row2">
+        <div class="field"><label id="detLbl">Destino / uso</label><input id="bDet" placeholder="Ej: Producción yogurt, Km 18…"></div>
+        <div class="field"><label>Categoría</label><select id="bCat"></select></div>
+      </div>
+      <label class="search" style="margin-top:2px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity=".5"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="bq" placeholder="Filtrar insumos…" autocomplete="off"></label>
+    </div>
+    <div class="list" id="batchList"></div>
+    <div class="sticky"><button class="btn p" id="batchGo" disabled>Registrar</button></div>
+  </section>
+
+  <section id="v-ped" class="hidden">
+    <h2 class="ptitle">Pedido</h2>
+    <p class="psub">Escribe cuánto pedir de cada insumo y en qué presentación. Puedes agregar cualquier producto, aunque no esté en rojo.</p>
+    <div class="seg" id="pedSeg"><button class="on" data-t="armar">Armar pedido</button><button data-t="env">Pedidos enviados</button></div>
+    <div id="pedArmar">
+      <div class="panel">
+        <div class="field"><label>Proveedor / nota (opcional)</label><input id="pedNota" placeholder="Ej: Distribuidora, entregar el viernes"></div>
+        <label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity=".5"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="pedAddQ" placeholder="＋ Agregar otro insumo al pedido…" autocomplete="off"></label>
+        <div class="list hidden" id="pedAddRes" style="margin-top:6px;max-height:240px;overflow:auto"></div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button class="btn g" id="pedSug" style="flex:1">Sugerir cantidades</button>
+          <button class="btn g" id="pedClr" style="flex:1">Vaciar pedido</button>
+        </div>
+      </div>
+      <div id="pedList"></div>
+    </div>
+    <div id="pedEnv" class="hidden"></div>
+    <div class="sticky" id="pedBar" style="gap:8px">
+      <button class="btn p" id="pedWa" disabled style="flex:1"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .3-3.3-.7-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2.1 1-2.4c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.4 1.8 2.2 1.2 1.1 2.3 1.4 2.6 1.6.3.1.5.1.7-.1l.9-1.1c.2-.3.4-.2.7-.1l2 1c.3.1.5.2.5.3.1.1.1.6-.1 1.2z"/></svg><span id="pedWaTxt">Pedido vacío</span></button>
+      <button class="btn d" id="pedCopy" disabled>Copiar</button>
+    </div>
+  </section>
+
+  <section id="v-his" class="hidden hist">
+    <h2 class="ptitle">Historial</h2>
+    <p class="psub">Cada movimiento queda con fecha, hora, responsable y la presentación en que se registró.</p>
+    <div class="panel">
+      <div class="filters">
+        <div class="field"><label>Desde</label><input type="date" id="hFrom"></div>
+        <div class="field"><label>Hasta</label><input type="date" id="hTo"></div>
+        <div class="field"><label>Tipo</label><select id="hTipo"><option value="">Todos</option><option value="entrada">Entradas</option><option value="salida">Salidas</option><option value="ajuste">Ajustes</option><option value="alta">Nuevos insumos</option></select></div>
+        <div class="field"><label>Presentación</label><select id="hPres"><option value="">Todas</option></select></div>
+      </div>
+      <div class="field"><label>Insumo</label><input id="hq" placeholder="Nombre…"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn d" id="hGo" style="flex:1">Consultar</button>
+        <button class="btn g" id="hCsv">Exportar CSV</button>
+      </div>
+    </div>
+    <div id="hSum" class="kpis hidden"></div>
+    <div id="hList"></div>
+  </section>
+</main>
+
+<nav><div class="in">
+  <button data-v="inv" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg>Inventario</button>
+  <button data-v="sal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M17 7H9M17 7v8"/></svg>Del día</button>
+  <button data-v="ped"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>Pedido<span class="badge hidden" id="pedBadge">0</span></button>
+  <button data-v="his"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Historial</button>
+</div></nav>
+
+<dialog id="dMov">
+  <div class="dh"><div><h2 id="mName"></h2><p id="mMeta"></p></div><button class="x" data-close>✕</button></div>
+  <div class="db">
+    <div class="big"><div><div style="font-size:12px;color:var(--ink2)">Disponible en bodega</div><b id="mStock"></b><div class="sub" id="mStockSub"></div></div><span id="mPill"></span></div>
+    <div class="seg" id="mSeg">
+      <button class="on salida" data-t="salida">− Salida</button>
+      <button data-t="entrada">＋ Entrada</button>
+      <button data-t="ajuste">Conteo</button>
+    </div>
+    <div class="field"><label id="mQtyLbl">Cantidad que sale</label><div class="qty"><input id="mQty" type="number" inputmode="decimal" min="0" step="any" placeholder="0"><select id="mPres"></select></div></div>
+    <div class="eq" id="mEq"></div>
+    <div class="field"><label id="mDetLbl">Destino / uso</label><input id="mDet" placeholder="Opcional"></div>
+    <button class="btn p" id="mGo" style="width:100%">Registrar salida</button>
+    <button class="btn g" id="mPed" style="width:100%;margin-top:8px">🛒 Añadir al pedido</button>
+    <details style="margin-top:14px" id="mCfg">
+      <summary class="link" style="list-style:none">⚙︎ Presentaciones, alertas y datos</summary>
+      <div style="margin-top:10px">
+        <div class="field"><label>Presentaciones (cómo llega o sale)</label><div id="ePE"></div></div>
+        <div class="field"><label>Niveles de alerta</label>
+          <div class="row2">
+            <div class="qty"><input id="eWarn" type="number" inputmode="decimal" step="any" placeholder="🟡"></div>
+            <div class="qty"><input id="eCrit" type="number" inputmode="decimal" step="any" placeholder="🔴"></div>
+          </div>
+          <div class="row2" style="font-size:12px;color:var(--ink2)"><span>🟡 Amarillo cuando quede ≤</span><span>🔴 Rojo cuando quede ≤</span></div>
+          <select id="eTP" style="margin-top:6px"></select>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Nombre</label><input id="eName"></div>
+          <div class="field"><label>Categoría</label><select id="eCat"></select></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn d" id="eSave" style="flex:1">Guardar cambios</button>
+          <button class="btn g" id="eOff" style="color:var(--bad)">Desactivar</button>
+        </div>
+      </div>
+    </details>
+    <div style="margin-top:14px"><div style="font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:6px">Últimos movimientos</div><div class="list" id="mHist"></div></div>
+  </div>
+</dialog>
+
+<dialog id="dAdd">
+  <div class="dh"><div><h2>Nuevo insumo</h2><p>Define en qué se mide y en qué presentaciones llega.</p></div><button class="x" data-close>✕</button></div>
+  <div class="db">
+    <div class="field"><label>Nombre del producto</label><input id="aName" placeholder="Ej: CREMA CHANTILLY"></div>
+    <div class="row2">
+      <div class="field"><label>Categoría</label><select id="aCat"></select></div>
+      <div class="field"><label>Se mide en</label><select id="aBase">
+        <option value="kg">Kilos (kg · libra · gramo)</option>
+        <option value="L">Litros (L · ml · galón)</option>
+        <option value="und">Unidades</option>
+        <option value="m">Metros</option>
+        <option value="__otro">Otro empaque…</option>
+      </select></div>
+    </div>
+    <div class="field hidden" id="aNewCatW"><label>Nombre de la nueva categoría</label><input id="aNewCat"></div>
+    <div class="field hidden" id="aOtroW"><label>Nombre del empaque (cuando no se puede pesar o contar por dentro)</label><input id="aOtro" placeholder="Ej: Cuñete, Poma"></div>
+    <div class="field"><label>Presentaciones en que llega</label><div id="aPE"></div></div>
+    <div class="field"><label>Stock inicial</label><div class="qty"><input id="aStock" type="number" inputmode="decimal" value="0" step="any"><select id="aStockP"></select></div></div>
+    <div class="field"><label>🟡 Amarillo ≤ · 🔴 Rojo ≤</label><div class="qty"><input id="aWarn" type="number" step="any" placeholder="2"><input id="aCrit" type="number" step="any" placeholder="1"><select id="aTP"></select></div></div>
+    <button class="btn p" id="aGo" style="width:100%">Agregar insumo</button>
+  </div>
+</dialog>
+
+<dialog id="dWho">
+  <div class="dh"><div><h2>¿Quién registra?</h2><p>Tu nombre aparece en el historial de cada movimiento.</p></div></div>
+  <div class="db">
+    <div class="field"><label>Nombre del responsable</label><input id="wName" autocomplete="name"></div>
+    <button class="btn p" id="wGo" style="width:100%">Continuar</button>
+  </div>
+</dialog>
+
+<dialog id="dCfg">
+  <div class="dh"><div><h2>Conexión a Supabase</h2><p>Pega la URL y la anon key del proyecto. Sin conexión la app funciona en modo demo (solo en este dispositivo).</p></div><button class="x" data-close>✕</button></div>
+  <div class="db">
+    <div class="field"><label>Project URL</label><input id="cUrl" placeholder="https://xxxx.supabase.co"></div>
+    <div class="field"><label>Anon public key</label><textarea id="cKey" rows="3"></textarea></div>
+    <button class="btn p" id="cGo" style="width:100%">Guardar y conectar</button>
+  </div>
+</dialog>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== CONFIGURACIÓN ===== */
+const SUPABASE_URL = 'https://cmakqiaatngkjsqxujbe.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_7XMQiRW6N4XF7tQEVdgngQ_yT5jbHvV';
+
+const SEED = [{"categoria":"HARINAS","nombre":"ARROZ","unidad_base":"kg","presentaciones":[{"n":"Bulto","f":50}],"presentacion_principal":"Bulto","nivel_alerta":100,"nivel_critico":50},{"categoria":"HARINAS","nombre":"AZUCAR","unidad_base":"kg","presentaciones":[{"n":"Bulto","f":50}],"presentacion_principal":"Bulto","nivel_alerta":100,"nivel_critico":50},{"categoria":"HARINAS","nombre":"FECULA","unidad_base":"kg","presentaciones":[{"n":"Bulto","f":50}],"presentacion_principal":"Bulto","nivel_alerta":100,"nivel_critico":50},{"categoria":"HARINAS","nombre":"LECHE EN POLVO","unidad_base":"kg","presentaciones":[{"n":"Bulto","f":25}],"presentacion_principal":"Bulto","nivel_alerta":50,"nivel_critico":25},{"categoria":"HARINAS","nombre":"GELATINA SIN SABOR","unidad_base":"kg","presentaciones":[{"n":"Bulto","f":25},{"n":"Empaque 500 g","f":0.5}],"presentacion_principal":"Bulto","nivel_alerta":50,"nivel_critico":25},{"categoria":"HARINAS","nombre":"HARINA","unidad_base":"kg","presentaciones":[{"n":"Bulto","f":50}],"presentacion_principal":"Bulto","nivel_alerta":100,"nivel_critico":50},{"categoria":"HARINAS","nombre":"PREMEZCLA BISCOCHUELO","unidad_base":"kg","presentaciones":[{"n":"Bulto","f":12.5}],"presentacion_principal":"Bulto","nivel_alerta":25.0,"nivel_critico":12.5},{"categoria":"GALLETERIA","nombre":"DUCALES","unidad_base":"und","presentaciones":[{"n":"Taco","f":3.0}],"presentacion_principal":"Taco","nivel_alerta":6.0,"nivel_critico":3.0},{"categoria":"GALLETERIA","nombre":"GALLETA OREO","unidad_base":"und","presentaciones":[{"n":"Paquete","f":12.0}],"presentacion_principal":"Paquete","nivel_alerta":24.0,"nivel_critico":12.0},{"categoria":"GALLETERIA","nombre":"GALLETA MILO","unidad_base":"und","presentaciones":[{"n":"Paquete","f":12.0}],"presentacion_principal":"Paquete","nivel_alerta":24.0,"nivel_critico":12.0},{"categoria":"GALLETERIA","nombre":"RECREO TRITURADO","unidad_base":"und","presentaciones":[{"n":"Caja","f":6.0}],"presentacion_principal":"Caja","nivel_alerta":12.0,"nivel_critico":6.0},{"categoria":"GALLETERIA","nombre":"SULTANA","unidad_base":"und","presentaciones":[{"n":"Caja","f":6.0}],"presentacion_principal":"Caja","nivel_alerta":12.0,"nivel_critico":6.0},{"categoria":"GALLETERIA","nombre":"MILO EN POLVO","unidad_base":"kg","presentaciones":[{"n":"Bolsa","f":2.0}],"presentacion_principal":"Bolsa","nivel_alerta":4.0,"nivel_critico":2.0},{"categoria":"GALLETERIA","nombre":"CAFÉ INSTANTANEO","unidad_base":"kg","presentaciones":[{"n":"Frasco","f":0.17}],"presentacion_principal":"Frasco","nivel_alerta":0.34,"nivel_critico":0.17},{"categoria":"GALLETERIA","nombre":"CAFÉ EN GRANO","unidad_base":"kg","presentaciones":[{"n":"Bolsa 500 g","f":0.5},{"n":"Bolsa 1 kg","f":1.0},{"n":"Bolsa 2.5 kg","f":2.5}],"presentacion_principal":"Bolsa 2.5 kg","nivel_alerta":5.0,"nivel_critico":2.5},{"categoria":"GALLETERIA","nombre":"OBLEAS","unidad_base":"Paquete","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"GALLETERIA","nombre":"SUSPIROS","unidad_base":"Paquete","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"GALLETERIA","nombre":"DURAZNOS","unidad_base":"kg","presentaciones":[{"n":"Lata 360 g","f":0.36},{"n":"Lata 3.06 kg","f":3.06}],"presentacion_principal":"Lata 3.06 kg","nivel_alerta":6.12,"nivel_critico":3.06},{"categoria":"CONSERVANTES","nombre":"ZUCAR PLUS","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"CONSERVANTES","nombre":"NATAMICINA","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"CONSERVANTES","nombre":"BENZOATO DE SODIO","unidad_base":"kg","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"CONSERVANTES","nombre":"SEMILLAS AMAPOLA","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ADITIVOS","nombre":"AMARETTO","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ADITIVOS","nombre":"BRANDY","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ADITIVOS","nombre":"CUAJO LIQUIDO","unidad_base":"L","presentaciones":[{"n":"Botella","f":1.0}],"presentacion_principal":"Botella","nivel_alerta":2.0,"nivel_critico":1.0},{"categoria":"ADITIVOS","nombre":"LECHE CONDENSADA","unidad_base":"Cuñete","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ADITIVOS","nombre":"AREQUIPE DULCE MANJAR BLANCO","unidad_base":"Cuñete","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ADITIVOS","nombre":"GLASEADO MORA","unidad_base":"L","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ADITIVOS","nombre":"GLASEADO FRESA","unidad_base":"L","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ADITIVOS","nombre":"GLASEADO MARACUYA","unidad_base":"L","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ADITIVOS","nombre":"GELATINA SABOR FRESA","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ADITIVOS","nombre":"GELATINA SABOR MORA","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ADITIVOS","nombre":"GELATINA SABOR LIMON","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ADITIVOS","nombre":"CANELA EN ASTILLA","unidad_base":"Paquete","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ADITIVOS","nombre":"CANELA EN POLVO","unidad_base":"kg","presentaciones":[{"n":"Empaque","f":1.0}],"presentacion_principal":"Empaque","nivel_alerta":2.0,"nivel_critico":1.0},{"categoria":"ADITIVOS","nombre":"PANELA","unidad_base":"Atado","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ADITIVOS","nombre":"CHOCOLATE","unidad_base":"Caja","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ADITIVOS","nombre":"ACEITE","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ADITIVOS","nombre":"CREMA DE LECHE","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ADITIVOS","nombre":"LECHE DESLACTOSADA","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ADITIVOS","nombre":"LECHE LIQUIDA","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"COLORANTES Y SABORES","nombre":"AMARILLO CLARO","unidad_base":"kg","presentaciones":[{"n":"Empaque","f":0.5}],"presentacion_principal":"Empaque","nivel_alerta":1.0,"nivel_critico":0.5},{"categoria":"COLORANTES Y SABORES","nombre":"AMARILLO HUEVO","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"COLORANTES Y SABORES","nombre":"SABOR GUANABANA PL","unidad_base":"kg","presentaciones":[{"n":"Empaque 100 g","f":0.1},{"n":"Empaque 1 kg","f":1}],"presentacion_principal":"Empaque 1 kg","nivel_alerta":2,"nivel_critico":1},{"categoria":"COLORANTES Y SABORES","nombre":"SABOR LACTEO MELOCOTON","unidad_base":"L","presentaciones":[{"n":"Garrafa","f":3.0}],"presentacion_principal":"Garrafa","nivel_alerta":6.0,"nivel_critico":3.0},{"categoria":"COLORANTES Y SABORES","nombre":"SABOR MANGO A14","unidad_base":"L","presentaciones":[{"n":"Garrafa","f":3.0}],"presentacion_principal":"Garrafa","nivel_alerta":6.0,"nivel_critico":3.0},{"categoria":"COLORANTES Y SABORES","nombre":"SABOR MANGO A13","unidad_base":"L","presentaciones":[{"n":"Envase","f":0.5}],"presentacion_principal":"Envase","nivel_alerta":1.0,"nivel_critico":0.5},{"categoria":"COLORANTES Y SABORES","nombre":"SABOR MANGO PL","unidad_base":"kg","presentaciones":[{"n":"Empaque","f":0.1}],"presentacion_principal":"Empaque","nivel_alerta":0.2,"nivel_critico":0.1},{"categoria":"COLORANTES Y SABORES","nombre":"SABOR LACTEO MORA","unidad_base":"L","presentaciones":[{"n":"Garrafa","f":3.0}],"presentacion_principal":"Garrafa","nivel_alerta":6.0,"nivel_critico":3.0},{"categoria":"COLORANTES Y SABORES","nombre":"SABOR LACTEO FRESA","unidad_base":"L","presentaciones":[{"n":"Garrafa","f":3.0}],"presentacion_principal":"Garrafa","nivel_alerta":6.0,"nivel_critico":3.0},{"categoria":"COLORANTES Y SABORES","nombre":"SABOR LACTEO PIÑA","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"COLORANTES Y SABORES","nombre":"SABORIZANTE KIWI","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"COLORANTES Y SABORES","nombre":"COLOR VERDE MANZANA","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"COLORANTES Y SABORES","nombre":"COLOR VERDE LIMON PAYASITO","unidad_base":"L","presentaciones":[{"n":"Envase","f":0.39}],"presentacion_principal":"Envase","nivel_alerta":0.78,"nivel_critico":0.39},{"categoria":"COLORANTES Y SABORES","nombre":"COLOR VERDE NAVIDAD","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"COLORANTES Y SABORES","nombre":"ROJO ESCARLATA EN POLVO","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"COLORANTES Y SABORES","nombre":"PASTAROMA","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"COLORANTES Y SABORES","nombre":"QUEMADO DE PANELA","unidad_base":"kg","presentaciones":[{"n":"Empaque","f":0.5}],"presentacion_principal":"Empaque","nivel_alerta":1.0,"nivel_critico":0.5},{"categoria":"PANADERIA","nombre":"CERNIDO DE GUAYABA","unidad_base":"Caja","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"PANADERIA","nombre":"AREQUIPE TAPA VERDE","unidad_base":"L","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"PANADERIA","nombre":"AREQUIPE TAPA ROJA","unidad_base":"L","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"PANADERIA","nombre":"LEVADURA","unidad_base":"kg","presentaciones":[{"n":"Empaque","f":0.5}],"presentacion_principal":"Empaque","nivel_alerta":1.0,"nivel_critico":0.5},{"categoria":"PANADERIA","nombre":"POLVO PARA HORNEAR","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"PANADERIA","nombre":"MARGARINA","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"PANADERIA","nombre":"GRASA HIDROGENADA","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"PANADERIA","nombre":"COCO RAYADO DULCE","unidad_base":"kg","presentaciones":[{"n":"Empaque","f":1.0}],"presentacion_principal":"Empaque","nivel_alerta":2.0,"nivel_critico":1.0},{"categoria":"PANADERIA","nombre":"ESENCIA VAINILLA BLANCA","unidad_base":"L","presentaciones":[{"n":"Envase","f":3.85}],"presentacion_principal":"Envase","nivel_alerta":7.7,"nivel_critico":3.85},{"categoria":"PANADERIA","nombre":"ESENCIA VAINILLA NEGRA","unidad_base":"L","presentaciones":[{"n":"Envase","f":3.85}],"presentacion_principal":"Envase","nivel_alerta":7.7,"nivel_critico":3.85},{"categoria":"PANADERIA","nombre":"ESENCIA BANANO","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"PANADERIA","nombre":"ESENCIA COCO","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"PANADERIA","nombre":"ESENCIA PONQUE","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"TARRINAS Y DESECHABLES","nombre":"TARRINAS 12 OZ","unidad_base":"und","presentaciones":[{"n":"Caja","f":500.0}],"presentacion_principal":"Caja","nivel_alerta":1000.0,"nivel_critico":500.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"TARRINAS 8 OZ","unidad_base":"und","presentaciones":[{"n":"Caja","f":500.0}],"presentacion_principal":"Caja","nivel_alerta":1000.0,"nivel_critico":500.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"TARIINAS 6 OZ","unidad_base":"und","presentaciones":[{"n":"Caja","f":500.0}],"presentacion_principal":"Caja","nivel_alerta":1000.0,"nivel_critico":500.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"TARRINAS 16 OZ","unidad_base":"und","presentaciones":[{"n":"Caja","f":500.0}],"presentacion_principal":"Caja","nivel_alerta":1000.0,"nivel_critico":500.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"TARRINA DOBLE USO","unidad_base":"und","presentaciones":[{"n":"Caja","f":200.0}],"presentacion_principal":"Caja","nivel_alerta":400.0,"nivel_critico":200.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"TARRINA TRIANGULAR TAPA BAJA","unidad_base":"und","presentaciones":[{"n":"Caja","f":200.0}],"presentacion_principal":"Caja","nivel_alerta":400.0,"nivel_critico":200.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"TAPA CRISTAL BANDEJA # 1","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"TARRINAS Y DESECHABLES","nombre":"BANDEJA # 1","unidad_base":"und","presentaciones":[{"n":"Paca","f":500.0}],"presentacion_principal":"Paca","nivel_alerta":1000.0,"nivel_critico":500.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"BANDEJA # 4","unidad_base":"und","presentaciones":[{"n":"Paca","f":500.0}],"presentacion_principal":"Paca","nivel_alerta":1000.0,"nivel_critico":500.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"BANDEJA # 6","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"TARRINAS Y DESECHABLES","nombre":"BLONDA # 24","unidad_base":"und","presentaciones":[{"n":"Paca","f":200.0}],"presentacion_principal":"Paca","nivel_alerta":400.0,"nivel_critico":200.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"DOMO CIRCULAR # 25","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"TARRINAS Y DESECHABLES","nombre":"DOMO CIRCULAR TAPA CRISTAL # 25","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"TARRINAS Y DESECHABLES","nombre":"MOLDE ALUMNIO 8 OZ","unidad_base":"und","presentaciones":[{"n":"Caja","f":500.0}],"presentacion_principal":"Caja","nivel_alerta":1000.0,"nivel_critico":500.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"TAPA CRISTAL MOLDE ALUMNIO 8 OZ","unidad_base":"und","presentaciones":[{"n":"Caja","f":500.0}],"presentacion_principal":"Caja","nivel_alerta":1000.0,"nivel_critico":500.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"BASE HELADO MULTIUSOS 8 OZ","unidad_base":"und","presentaciones":[{"n":"Paquete","f":50.0}],"presentacion_principal":"Paquete","nivel_alerta":100.0,"nivel_critico":50.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"TAPA BASE HELADO MULTIUSOS 8 OZ","unidad_base":"und","presentaciones":[{"n":"Paquete","f":50.0}],"presentacion_principal":"Paquete","nivel_alerta":100.0,"nivel_critico":50.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"CUCHARA CHIC BLANCA","unidad_base":"und","presentaciones":[{"n":"Paquete","f":100.0}],"presentacion_principal":"Paquete","nivel_alerta":200.0,"nivel_critico":100.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"CUCHARA TAMI 11 CM BLANCA","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"TARRINAS Y DESECHABLES","nombre":"SERVILLETAS PLUS","unidad_base":"und","presentaciones":[{"n":"Paquete","f":100.0}],"presentacion_principal":"Paquete","nivel_alerta":200.0,"nivel_critico":100.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"CUCHARA POSTRERA BLANCA","unidad_base":"und","presentaciones":[{"n":"Paquete","f":1000}],"presentacion_principal":"Paquete","nivel_alerta":2000,"nivel_critico":1000},{"categoria":"TARRINAS Y DESECHABLES","nombre":"COPA VENECIANA 8 OZ","unidad_base":"und","presentaciones":[{"n":"Caja","f":500.0}],"presentacion_principal":"Caja","nivel_alerta":1000.0,"nivel_critico":500.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"BOLSAS EMPACADO AL VACIO 18X22","unidad_base":"und","presentaciones":[{"n":"Paquete","f":250.0}],"presentacion_principal":"Paquete","nivel_alerta":500.0,"nivel_critico":250.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"BOLSAS EMPACADO AL VACIO 15X20","unidad_base":"und","presentaciones":[{"n":"Paquete","f":250.0}],"presentacion_principal":"Paquete","nivel_alerta":500.0,"nivel_critico":250.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"BOLSATINAS","unidad_base":"und","presentaciones":[{"n":"Rollo","f":40.0}],"presentacion_principal":"Rollo","nivel_alerta":80.0,"nivel_critico":40.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"BOLSAS BARCO OBLEAS","unidad_base":"und","presentaciones":[{"n":"Paquete","f":100.0}],"presentacion_principal":"Paquete","nivel_alerta":200.0,"nivel_critico":100.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"GUANTES PARA OBLEAS","unidad_base":"und","presentaciones":[{"n":"Paquete","f":100.0}],"presentacion_principal":"Paquete","nivel_alerta":200.0,"nivel_critico":100.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"BOLSAS PARA PAN TRANSPARENTES","unidad_base":"und","presentaciones":[{"n":"Paquete","f":100.0}],"presentacion_principal":"Paquete","nivel_alerta":200.0,"nivel_critico":100.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"BOLSAS DE PAPEL GRANDES","unidad_base":"Fajo","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"TARRINAS Y DESECHABLES","nombre":"BOLSAS DE PAPEL PEQUEÑAS","unidad_base":"Fajo","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"TARRINAS Y DESECHABLES","nombre":"BOLSAS BIODEGRADABLES T19","unidad_base":"Rollo","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"TARRINAS Y DESECHABLES","nombre":"BOLSAS BIODEGRADABLES T25","unidad_base":"Rollo","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"TARRINAS Y DESECHABLES","nombre":"BOLSAS BIODEGRADABLES T30","unidad_base":"Rollo","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"TARRINAS Y DESECHABLES","nombre":"BOLSA INDUSTRIAL GRANDE","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"TARRINAS Y DESECHABLES","nombre":"BOLSA INDUSTRIAL PEQUEÑA","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"TARRINAS Y DESECHABLES","nombre":"VASOS DE CARTON 6 OZ","unidad_base":"und","presentaciones":[{"n":"Paquete","f":50.0}],"presentacion_principal":"Paquete","nivel_alerta":100.0,"nivel_critico":50.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"VASOS DE CARTON 9 OZ","unidad_base":"und","presentaciones":[{"n":"Paquete","f":40.0}],"presentacion_principal":"Paquete","nivel_alerta":80.0,"nivel_critico":40.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"VASOS DE CARTON 14 OZ","unidad_base":"und","presentaciones":[{"n":"Paquete","f":50.0}],"presentacion_principal":"Paquete","nivel_alerta":100.0,"nivel_critico":50.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"VASOS DESECHABLES","unidad_base":"und","presentaciones":[{"n":"Paquete","f":50.0}],"presentacion_principal":"Paquete","nivel_alerta":100.0,"nivel_critico":50.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"VINIPEL","unidad_base":"m","presentaciones":[{"n":"Rollo","f":1000.0}],"presentacion_principal":"Rollo","nivel_alerta":2000.0,"nivel_critico":1000.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"MATES DE MEDIA","unidad_base":"Bulto","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"TARRINAS Y DESECHABLES","nombre":"MATES DE LIBRA","unidad_base":"Bulto","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"TARRINAS Y DESECHABLES","nombre":"TARROS YOGURT 1 LITRO","unidad_base":"und","presentaciones":[{"n":"Paca","f":80.0}],"presentacion_principal":"Paca","nivel_alerta":160.0,"nivel_critico":80.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"TARROS YOGURT 1,8 LITROS","unidad_base":"und","presentaciones":[{"n":"Paca","f":50.0}],"presentacion_principal":"Paca","nivel_alerta":100.0,"nivel_critico":50.0},{"categoria":"TARRINAS Y DESECHABLES","nombre":"TARROS YOGURT PERSONAL","unidad_base":"und","presentaciones":[{"n":"Paca","f":170.0}],"presentacion_principal":"Paca","nivel_alerta":340.0,"nivel_critico":170.0},{"categoria":"ETIQUETAS","nombre":"ETIQUETAS 1 LITRO FRESA","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ETIQUETAS","nombre":"ETIQUETAS 1 LITRO MORA","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ETIQUETAS","nombre":"ETIQUETAS 1 LITRO MANGO","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ETIQUETAS","nombre":"ETIQUETAS 1 LITRO PIÑA","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ETIQUETAS","nombre":"ETIQUETAS 1 LITRO MELOCOTON","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ETIQUETAS","nombre":"ETIQUETAS 1 LITRO GUANABANA","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ETIQUETAS","nombre":"ETIQUETAS 1 LITRO KIWI","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ETIQUETAS","nombre":"ETIQUETAS 1 LITRO KUMIS","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ETIQUETAS","nombre":"ETIQUETAS 1.8 LITRO FRESA","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ETIQUETAS","nombre":"ETIQUETAS 1.8 LITRO MORA","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ETIQUETAS","nombre":"ETIQUETAS 1.8 LITRO MANGO","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ETIQUETAS","nombre":"ETIQUETAS 1.8 LITRO PIÑA","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ETIQUETAS","nombre":"ETIQUETAS 1.8 LITRO MELOCOTON","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ETIQUETAS","nombre":"ETIQUETAS 1.8 LITRO GUANABANA","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ETIQUETAS","nombre":"ETIQUETAS 1.8 LITRO KIWI","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ETIQUETAS","nombre":"ETIQUETAS 1.8 LITRO KUMIS","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ASEO","nombre":"PAPEL HIGIENICO","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ASEO","nombre":"DESENGRASANTE","unidad_base":"L","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ASEO","nombre":"HIPOCLORITO","unidad_base":"Poma","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ASEO","nombre":"AMBIENTADOR","unidad_base":"L","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ASEO","nombre":"LAVA LOSA","unidad_base":"kg","presentaciones":[{"n":"Tarro","f":3.5}],"presentacion_principal":"Tarro","nivel_alerta":7.0,"nivel_critico":3.5},{"categoria":"ASEO","nombre":"ESPONJAS","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ASEO","nombre":"TRAPOS","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ASEO","nombre":"ESCOBA","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ASEO","nombre":"RECOGEDOR","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ASEO","nombre":"TRAPEADOR","unidad_base":"und","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ASEO","nombre":"JABON MANOS","unidad_base":"L","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2},{"categoria":"ASEO","nombre":"ALCOHOL","unidad_base":"Poma","presentaciones":[],"presentacion_principal":null,"nivel_alerta":5,"nivel_critico":2}];
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const ls = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v) } catch { return d } },
+             set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)) } catch {} } };
+const r6 = n => Math.round(n * 1e6) / 1e6;
+const fmt = n => (Math.round((Number(n) || 0) * 1000) / 1000).toLocaleString('es-CO', { maximumFractionDigits: 3 });
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const today = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10) };
+const cap = s => s.toLowerCase().replace(/(^|\s)\S/g, m => m.toUpperCase()).replace(/ (Y|De|Del|La|El|Para|En) /g, m => m.toLowerCase());
+function toast(m, err) { const t = $('#toast'); t.textContent = m; t.className = 'toast on' + (err ? ' err' : ''); clearTimeout(t._t); t._t = setTimeout(() => t.className = 'toast', 2800) }
+
+/* ===== UNIDADES Y PRESENTACIONES =====
+   El stock siempre se guarda en la unidad base (kg, L, und, m o un empaque).
+   Cada presentación dice cuántas unidades base trae: Bulto = 50 kg, Caja = 500 und. */
+const BUILTIN = {
+  kg: [{ n: 'Kilo', f: 1 }, { n: 'Libra', f: 0.5 }, { n: 'Gramo', f: 0.001 }, { n: 'Arroba', f: 12.5 }],
+  L: [{ n: 'Litro', f: 1 }, { n: 'Mililitro', f: 0.001 }, { n: 'Galón', f: 3.785 }],
+  und: [{ n: 'Unidad', f: 1 }],
+  m: [{ n: 'Metro', f: 1 }]
+};
+const BASE_TXT = { kg: 'kg', L: 'L', und: 'und', m: 'm' };
+const isStd = b => b in BUILTIN;
+const bTxt = b => BASE_TXT[b] || b.toLowerCase();
+function fq(v, b) { // cantidad base legible
+  v = +v || 0;
+  if (b === 'kg' && v > 0 && v < 1) return fmt(v * 1000) + ' g';
+  if (b === 'L' && v > 0 && v < 1) return fmt(v * 1000) + ' ml';
+  return fmt(v) + ' ' + bTxt(b);
+}
+const PLU = { 'Galón': 'Galones', 'Cuñete': 'Cuñetes', 'Atado': 'Atados' };
+const plural = (n, q) => { if (Math.abs(q - 1) < 1e-9) return n; const [w, ...r] = n.split(' '); if (PLU[w]) return [PLU[w], ...r].join(' '); return [/[aeiouáéíóú]$/i.test(w) ? w + 's' : w + 'es', ...r].join(' ') };
+function opts(i) {
+  const base = isStd(i.unidad_base) ? BUILTIN[i.unidad_base] : [{ n: cap(i.unidad_base), f: 1 }];
+  const cus = (i.presentaciones || []).filter(p => p.n && +p.f > 0);
+  return [...cus.map(p => ({ ...p, c: 1 })), ...base.filter(b => !cus.some(c => c.n.toLowerCase() === b.n.toLowerCase()))];
+}
+const optLbl = (o, i) => !o.c && (Math.abs(o.f - 1) < 1e-9 || o.n === 'Gramo' || o.n === 'Mililitro') ? o.n : `${o.n} (${fq(o.f, i.unidad_base)})`;
+const findOpt = (i, n) => opts(i).find(o => o.n === n) || opts(i).find(o => Math.abs(o.f - 1) < 1e-9) || opts(i)[0];
+const principal = i => (i.presentaciones || []).find(p => p.n === i.presentacion_principal);
+function equiv(i, v) { // "20 Bultos + 10 kg · 2.020 lb"
+  v = +v || 0; const p = principal(i); let out = [];
+  if (p && v > 0) {
+    const w = Math.floor(v / p.f + 1e-9), rest = r6(v - w * p.f);
+    if (w > 0) out.push(`${fmt(w)} ${plural(p.n, w)}` + (rest > 1e-6 ? ` + ${fq(rest, i.unidad_base)}` : ''));
+    else out.push(`${fmt(v / p.f)} de ${p.n.toLowerCase()}`);
+  }
+  if (i.unidad_base === 'kg' && v > 0) out.push(`${fmt(v * 2)} lb`);
+  return out.join(' · ');
+}
+const selOpts = (i, sel) => opts(i).map(o => `<option value="${esc(o.n)}" ${o.n === sel ? 'selected' : ''}>${esc(optLbl(o, i))}</option>`).join('');
+const defPres = (i, tipo) => tipo === 'entrada' ? (principal(i)?.n || findOpt(i).n) : findOpt(i).n;
+const estado = i => +i.stock <= +i.nivel_critico ? 'c' : +i.stock <= +i.nivel_alerta ? 'w' : 'ok';
+const pill = s => `<span class="pill ${s}">${s === 'c' ? 'Crítico' : s === 'w' ? 'Por agotarse' : 'Suficiente'}</span>`;
+
+/* ===== DATOS ===== */
+const cfg = { url: SUPABASE_URL || ls.get('mp_url', ''), key: SUPABASE_ANON_KEY || ls.get('mp_key', '') };
+let sb = null;
+if (cfg.url && cfg.key && window.supabase) sb = supabase.createClient(cfg.url, cfg.key);
+const DK = 'mp_demo_v2';
+const demo = {
+  load() { let d = ls.get(DK, null); if (!d) { let id = 1; d = { ins: SEED.map(s => ({ id: id++, ...s, stock: 0, activo: true })), mov: [], seq: 1 }; ls.set(DK, d) } return d },
+  save(d) { ls.set(DK, d) }
+};
+const api = {
+  async insumos() {
+    if (!sb) return demo.load().ins.filter(i => i.activo);
+    const { data, error } = await sb.from('mp_insumos').select('*').eq('activo', true).order('categoria').order('nombre');
+    if (error) throw error; return data;
+  },
+  async mover(id, tipo, cantidad, pres, cantPres, detalle) {
+    const resp = state.who || null; cantidad = r6(cantidad);
+    if (!sb) {
+      const d = demo.load(), i = d.ins.find(x => x.id === id), ant = +i.stock;
+      if (tipo === 'salida' && cantidad > ant + 1e-6) throw new Error(`Stock insuficiente: hay ${fq(ant, i.unidad_base)}`);
+      const n = r6(tipo === 'entrada' ? ant + cantidad : tipo === 'salida' ? Math.max(ant - cantidad, 0) : cantidad);
+      i.stock = n; d.mov.unshift({ id: d.seq++, insumo_id: id, tipo, cantidad, presentacion: pres, cantidad_presentacion: cantPres, stock_anterior: ant, stock_resultante: n, detalle, responsable: resp, created_at: new Date().toISOString() });
+      demo.save(d); return n;
+    }
+    const { data, error } = await sb.rpc('mp_registrar_movimiento', { p_insumo_id: id, p_tipo: tipo, p_cantidad: cantidad, p_presentacion: pres, p_cantidad_presentacion: cantPres, p_detalle: detalle || null, p_responsable: resp });
+    if (error) throw new Error(error.message.includes('Stock') ? 'Stock insuficiente' + error.message.split('insuficiente')[1] : error.message); return data;
+  },
+  async crear(o) {
+    if (!sb) {
+      const d = demo.load(); if (d.ins.some(i => i.nombre === o.nombre)) throw new Error('Ya existe un insumo con ese nombre');
+      const id = Math.max(0, ...d.ins.map(i => i.id)) + 1; d.ins.push({ id, ...o, stock: 0, activo: true }); demo.save(d); return id;
+    }
+    const { data, error } = await sb.from('mp_insumos').insert({ ...o, stock: 0 }).select('id').single();
+    if (error) throw new Error(error.code === '23505' ? 'Ya existe un insumo con ese nombre' : error.message); return data.id;
+  },
+  async editar(id, o) {
+    if (!sb) { const d = demo.load(); Object.assign(d.ins.find(i => i.id === id), o); demo.save(d); return }
+    const { error } = await sb.from('mp_insumos').update(o).eq('id', id); if (error) throw new Error(error.code === '23505' ? 'Ya existe un insumo con ese nombre' : error.message);
+  },
+  async guardarPedido(p) {
+    if (!sb) { const d = demo.load(); (d.ped ||= []).unshift({ id: Date.now(), ...p, created_at: new Date().toISOString() }); demo.save(d); return }
+    const { error } = await sb.from('mp_pedidos').insert(p); if (error) throw error;
+  },
+  async pedidos() {
+    if (!sb) return demo.load().ped || [];
+    const { data, error } = await sb.from('mp_pedidos').select('*').order('created_at', { ascending: false }).limit(60); if (error) throw error; return data;
+  },
+  async historial({ from, to, tipo, insumo_id, limit }) {
+    if (!sb) {
+      const d = demo.load(), map = Object.fromEntries(d.ins.map(i => [i.id, i]));
+      return d.mov.filter(m => (!from || m.created_at >= from) && (!to || m.created_at < to) && (!tipo || m.tipo === tipo) && (!insumo_id || m.insumo_id === insumo_id))
+        .slice(0, limit || 5000).map(m => ({ ...m, mp_insumos: map[m.insumo_id] }));
+    }
+    let q = sb.from('mp_movimientos').select('*, mp_insumos(nombre,unidad_base,categoria,presentaciones,presentacion_principal)').order('created_at', { ascending: false }).limit(limit || 5000);
+    if (from) q = q.gte('created_at', from); if (to) q = q.lt('created_at', to);
+    if (tipo) q = q.eq('tipo', tipo); if (insumo_id) q = q.eq('insumo_id', insumo_id);
+    const { data, error } = await q; if (error) throw error; return data;
+  }
+};
+
+const state = { ins: [], cat: 'TODAS', st: 'all', q: '', who: ls.get('mp_who', ''), batch: {}, bTipo: 'salida', cur: null, mTipo: 'salida', hist: [], histF: [] };
+const cats = () => [...new Set(state.ins.map(i => i.categoria))];
+async function refresh() {
+  try { state.ins = await api.insumos() }
+  catch (e) { $('#invList').innerHTML = `<div class="empty">No se pudo conectar con Supabase.<br><small>${esc(e.message)}</small></div>`; return }
+  renderInv(); renderBatch(); renderPed(); fillCatSelects();
+}
+
+/* ===== INVENTARIO ===== */
+function renderInv() {
+  const all = state.ins, w = all.filter(i => estado(i) === 'w').length, c = all.filter(i => estado(i) === 'c').length;
+  $('#kTotal').textContent = all.length; $('#kWarn').textContent = w; $('#kCrit').textContent = c;
+  $$('.kpi[data-st]').forEach(k => k.classList.toggle('on', k.dataset.st === state.st && state.st !== 'all'));
+  $('#cats').innerHTML = ['TODAS', ...cats()].map(x => `<button class="cat ${x === state.cat ? 'on' : ''}" data-c="${esc(x)}">${x === 'TODAS' ? 'Todas' : esc(cap(x))}</button>`).join('');
+  const q = state.q.toLowerCase();
+  const rows = all.filter(i => (state.cat === 'TODAS' || i.categoria === state.cat) && (state.st === 'all' || estado(i) === state.st) && (!q || i.nombre.toLowerCase().includes(q)));
+  if (!rows.length) { $('#invList').innerHTML = '<div class="empty">No hay insumos con ese filtro.</div>'; return }
+  const g = {}; rows.forEach(i => (g[i.categoria] ||= []).push(i)); const ord = { c: 0, w: 1, ok: 2 };
+  $('#invList').innerHTML = Object.entries(g).map(([cat, its]) => `
+    <div class="group"><h3>${esc(cap(cat))} <em>${its.length}</em></h3><div class="list">
+    ${its.sort((a, b) => ord[estado(a)] - ord[estado(b)] || a.nombre.localeCompare(b.nombre)).map(i => { const s = estado(i), p = principal(i); return `
+      <div class="item ${s === 'ok' ? '' : s}" data-id="${i.id}">
+        <div class="n"><b>${esc(i.nombre)}</b><span>${p ? esc(p.n) + ' de ' + fq(p.f, i.unidad_base) : 'Se mide en ' + esc(bTxt(i.unidad_base))}</span></div>
+        <div class="q"><b>${fq(i.stock, i.unidad_base)}</b><div class="sub">${esc(equiv(i, i.stock)) || '&nbsp;'}</div>${pill(s)}</div>
+      </div>` }).join('')}
+    </div></div>`).join('');
+}
+$('#cats').onclick = e => { const b = e.target.closest('.cat'); if (b) { state.cat = b.dataset.c; renderInv() } };
+$$('.kpi[data-st]').forEach(k => k.onclick = () => { state.st = state.st === k.dataset.st ? 'all' : k.dataset.st; renderInv() });
+$('#q').oninput = e => { state.q = e.target.value; renderInv() };
+$('#invList').onclick = e => { const it = e.target.closest('.item'); if (it) openMov(+it.dataset.id) };
+
+/* ===== EDITOR DE PRESENTACIONES ===== */
+function peRender(el, base, list, princ) {
+  const bl = isStd(base) ? bTxt(base) : base.toLowerCase() || 'und';
+  el.innerHTML = `<div class="pe">
+    <p class="hint">Ej: <b>Bulto</b> = 50 ${isStd(base) && base !== 'kg' ? bl : 'kg'} · <b>Caja</b> = 500 und. ${base === 'kg' ? 'Kilo, libra, gramo y arroba ya vienen incluidos.' : base === 'L' ? 'Litro, ml y galón ya vienen incluidos.' : ''}</p>
+    <div class="rows">${(list.length ? list : [{ n: '', f: '' }]).map(p => peRow(p, bl)).join('')}</div>
+    <button type="button" class="link" data-add>＋ Agregar presentación</button>
+    <div class="field" style="margin:8px 0 0"><label>Mostrar el stock también en</label><select data-pr></select></div>
+  </div>`;
+  el.dataset.base = base;
+  const sync = () => { const ps = peGet(el), sel = el.querySelector('[data-pr]'); let cur = sel.dataset.touched ? sel.value : (sel.value || princ); if (!sel.dataset.touched && !ps.some(p => p.n === cur) && ps.length) cur = ps.reduce((a, b) => b.f > a.f ? b : a).n; el.querySelector('[data-pr]').innerHTML = '<option value="">Solo ' + esc(bl) + '</option>' + ps.map(p => `<option ${p.n === cur ? 'selected' : ''}>${esc(p.n)}</option>`).join(''); el.dispatchEvent(new Event('pechange')) };
+  el.onclick = e => {
+    if (e.target.dataset.add != null) { el.querySelector('.rows').insertAdjacentHTML('beforeend', peRow({ n: '', f: '' }, bl)); el.querySelector('.rows .pr:last-child input').focus() }
+    if (e.target.dataset.del != null) { e.target.closest('.pr').remove(); sync() }
+  };
+  el.oninput = e => { if (e.target.closest('.pr')) sync() };
+  el.querySelector('[data-pr]').onchange = e => { e.target.dataset.touched = 1; el.dispatchEvent(new Event('pechange')) };
+  sync();
+}
+const peRow = (p, bl) => `<div class="pr"><input placeholder="Nombre (Bulto, Caja…)" value="${esc(p.n)}" data-n><input type="number" inputmode="decimal" step="any" placeholder="Trae" value="${p.f === '' ? '' : r6(p.f)}" data-f><span>${esc(bl)}</span><button type="button" data-del aria-label="Quitar">✕</button></div>`;
+function peGet(el) {
+  const seen = new Set();
+  return [...el.querySelectorAll('.pr')].map(r => ({ n: r.querySelector('[data-n]').value.trim().replace(/^\w/, c => c.toUpperCase()), f: parseFloat(r.querySelector('[data-f]').value) }))
+    .filter(p => p.n && p.f > 0 && !seen.has(p.n.toLowerCase()) && seen.add(p.n.toLowerCase()));
+}
+const pePrinc = el => el.querySelector('[data-pr]').value || null;
+
+/* ===== MOVIMIENTO INDIVIDUAL ===== */
+function updEq() {
+  const i = state.cur, o = findOpt(i, $('#mPres').value), v = parseFloat($('#mQty').value);
+  if (isNaN(v) || v < 0) { $('#mEq').innerHTML = ''; return }
+  const base = r6(v * o.f), t = state.mTipo;
+  const nuevo = t === 'entrada' ? +i.stock + base : t === 'salida' ? +i.stock - base : base;
+  $('#mEq').innerHTML = (Math.abs(o.f - 1) > 1e-9 ? `= <b>${fq(base, i.unidad_base)}</b> · ` : '') +
+    (nuevo < -1e-6 ? `<span style="color:var(--bad)">No alcanza: hay ${fq(i.stock, i.unidad_base)}</span>` : `Quedará <b>${fq(nuevo, i.unidad_base)}</b>${equiv(i, nuevo) ? ' (' + esc(equiv(i, nuevo)) + ')' : ''}`);
+}
+function setMTipo(t) {
+  state.mTipo = t;
+  $$('#mSeg button').forEach(b => { b.classList.toggle('on', b.dataset.t === t); b.classList.remove('salida', 'entrada'); if (b.dataset.t === t && t !== 'ajuste') b.classList.add(t) });
+  $('#mQtyLbl').textContent = t === 'salida' ? 'Cantidad que sale' : t === 'entrada' ? 'Cantidad que entra' : 'Lo que hay realmente (conteo físico)';
+  $('#mDetLbl').textContent = t === 'salida' ? 'Destino / uso' : t === 'entrada' ? 'Proveedor / factura' : 'Motivo del ajuste';
+  $('#mGo').textContent = t === 'salida' ? 'Registrar salida' : t === 'entrada' ? 'Registrar entrada' : 'Guardar conteo';
+  $('#mPres').innerHTML = selOpts(state.cur, defPres(state.cur, t)); updEq();
+}
+$('#mSeg').onclick = e => { const b = e.target.closest('button'); if (b) setMTipo(b.dataset.t) };
+$('#mQty').oninput = updEq; $('#mPres').onchange = updEq;
+function fillThr(selId, i) {
+  const p = principal(i), d = p ? p.n : findOpt(i).n;
+  $(selId).innerHTML = selOpts(i, d); return findOpt(i, d);
+}
+async function openMov(id) {
+  const i = state.ins.find(x => x.id === id); if (!i) return; state.cur = i;
+  $('#mName').textContent = i.nombre; $('#mMeta').textContent = cap(i.categoria) + ' · se mide en ' + bTxt(i.unidad_base);
+  $('#mStock').textContent = fq(i.stock, i.unidad_base); $('#mStockSub').textContent = equiv(i, i.stock); $('#mPill').innerHTML = pill(estado(i));
+  $('#mQty').value = ''; $('#mDet').value = ''; setMTipo('salida');
+  $('#mCfg').open = false; $('#eName').value = i.nombre;
+  $('#eCat').innerHTML = cats().map(c => `<option ${c === i.categoria ? 'selected' : ''} value="${esc(c)}">${esc(cap(c))}</option>`).join('');
+  peRender($('#ePE'), i.unidad_base, i.presentaciones || [], i.presentacion_principal);
+  const o = fillThr('#eTP', i); $('#eWarn').value = r6(i.nivel_alerta / o.f); $('#eCrit').value = r6(i.nivel_critico / o.f); $('#eTP').dataset.f = o.f;
+  $('#mHist').innerHTML = '<div class="spin" style="margin:14px auto;width:20px;height:20px"></div>';
+  $('#dMov').showModal();
+  try { const h = await api.historial({ insumo_id: id, limit: 8 }); $('#mHist').innerHTML = h.length ? h.map(mvRow).join('') : '<div class="empty" style="padding:14px">Sin movimientos todavía.</div>' } catch { $('#mHist').innerHTML = '' }
+}
+$('#eTP').onchange = () => { // convierte lo escrito a la nueva presentación
+  const i = state.cur, nf = findOpt(i, $('#eTP').value).f, of = +$('#eTP').dataset.f || 1;
+  ['#eWarn', '#eCrit'].forEach(s => { const v = parseFloat($(s).value); if (!isNaN(v)) $(s).value = r6(v * of / nf) }); $('#eTP').dataset.f = nf;
+};
+$('#mGo').onclick = async () => {
+  if (!needWho()) return;
+  const i = state.cur, v = parseFloat($('#mQty').value), o = findOpt(i, $('#mPres').value);
+  if (isNaN(v) || v < 0 || (state.mTipo !== 'ajuste' && v === 0)) return toast('Escribe una cantidad válida', 1);
+  $('#mGo').disabled = true;
+  try { await api.mover(i.id, state.mTipo, v * o.f, o.n, v, $('#mDet').value.trim()); $('#dMov').close(); toast('Movimiento registrado ✓'); await refresh() }
+  catch (e) { toast(e.message, 1) } finally { $('#mGo').disabled = false }
+};
+$('#eSave').onclick = async () => {
+  const i = state.cur, ps = peGet($('#ePE')), f = findOpt({ ...i, presentaciones: ps }, $('#eTP').value).f;
+  const w = parseFloat($('#eWarn').value) * f, c = parseFloat($('#eCrit').value) * f;
+  if (isNaN(w) || isNaN(c) || c > w) return toast('El nivel rojo debe ser menor o igual al amarillo', 1);
+  try {
+    await api.editar(i.id, { presentaciones: ps, presentacion_principal: pePrinc($('#ePE')), nivel_alerta: r6(w), nivel_critico: r6(c), nombre: $('#eName').value.trim().toUpperCase() || i.nombre, categoria: $('#eCat').value });
+    $('#dMov').close(); toast('Cambios guardados ✓'); refresh();
+  } catch (e) { toast(e.message, 1) }
+};
+$('#eOff').onclick = async () => {
+  if (!confirm(`¿Desactivar "${state.cur.nombre}"? Deja de aparecer en el inventario pero su historial se conserva.`)) return;
+  try { await api.editar(state.cur.id, { activo: false }); $('#dMov').close(); toast('Insumo desactivado'); refresh() } catch (e) { toast(e.message, 1) }
+};
+
+/* ===== NUEVO INSUMO ===== */
+function fillCatSelects() {
+  const c = cats();
+  $('#aCat').innerHTML = c.map(x => `<option value="${esc(x)}">${esc(cap(x))}</option>`).join('') + '<option value="__new">＋ Nueva categoría…</option>';
+  const cur = $('#bCat').value;
+  $('#bCat').innerHTML = '<option value="">Todas</option>' + c.map(x => `<option value="${esc(x)}">${esc(cap(x))}</option>`).join(''); $('#bCat').value = cur;
+}
+const aBase = () => $('#aBase').value === '__otro' ? ($('#aOtro').value.trim() || 'Unidad') : $('#aBase').value;
+function aSync() {
+  const tmp = { unidad_base: aBase(), presentaciones: peGet($('#aPE')), presentacion_principal: pePrinc($('#aPE')) };
+  const p = principal(tmp)?.n;
+  $('#aStockP').innerHTML = selOpts(tmp, p); $('#aTP').innerHTML = selOpts(tmp, p);
+}
+$('#aPE').addEventListener('pechange', aSync);
+$('#aBase').onchange = () => { $('#aOtroW').classList.toggle('hidden', $('#aBase').value !== '__otro'); peRender($('#aPE'), aBase(), peGet($('#aPE')), pePrinc($('#aPE'))) };
+$('#aOtro').oninput = () => peRender($('#aPE'), aBase(), peGet($('#aPE')), pePrinc($('#aPE')));
+$('#aCat').onchange = () => $('#aNewCatW').classList.toggle('hidden', $('#aCat').value !== '__new');
+$('#addBtn').onclick = () => {
+  ['#aName', '#aNewCat', '#aOtro', '#aWarn', '#aCrit'].forEach(s => $(s).value = ''); $('#aStock').value = 0; $('#aBase').value = 'kg';
+  if (state.cat !== 'TODAS') $('#aCat').value = state.cat; $('#aCat').onchange(); $('#aOtroW').classList.add('hidden');
+  peRender($('#aPE'), 'kg', [], null); $('#dAdd').showModal();
+};
+$('#aGo').onclick = async () => {
+  if (!needWho()) return;
+  const nombre = $('#aName').value.trim().toUpperCase();
+  const categoria = $('#aCat').value === '__new' ? $('#aNewCat').value.trim().toUpperCase() : $('#aCat').value;
+  if (!nombre || !categoria) return toast('Falta el nombre o la categoría', 1);
+  const o = { nombre, categoria, unidad_base: aBase(), presentaciones: peGet($('#aPE')), presentacion_principal: pePrinc($('#aPE')) };
+  const tf = findOpt(o, $('#aTP').value).f, sf = findOpt(o, $('#aStockP').value).f;
+  const w = (parseFloat($('#aWarn').value) || 0) * tf, c = (parseFloat($('#aCrit').value) || 0) * tf, st = (parseFloat($('#aStock').value) || 0);
+  if (c > w) return toast('El nivel rojo debe ser menor o igual al amarillo', 1);
+  $('#aGo').disabled = true;
+  try { const id = await api.crear({ ...o, nivel_alerta: r6(w), nivel_critico: r6(c) }); await api.mover(id, 'alta', st * sf, $('#aStockP').value, st, 'Insumo creado'); $('#dAdd').close(); toast('Insumo agregado ✓'); await refresh() }
+  catch (e) { toast(e.message, 1) } finally { $('#aGo').disabled = false }
+};
+
+/* ===== MOVIMIENTO DEL DÍA ===== */
+const bBase = (i, b) => r6(parseFloat(b.v) * findOpt(i, b.p).f);
+function renderBatch() {
+  const q = $('#bq').value.toLowerCase(), c = $('#bCat').value;
+  const rows = state.ins.filter(i => (!c || i.categoria === c) && (!q || i.nombre.toLowerCase().includes(q)));
+  $('#batchList').innerHTML = rows.map(i => { const b = state.batch[i.id], p = b?.p || defPres(i, state.bTipo), s = estado(i);
+    const err = b && state.bTipo === 'salida' && bBase(i, b) > +i.stock + 1e-6; return `
+    <div class="srow ${b ? 'has' : ''} ${err ? 'err' : ''}" data-id="${i.id}">
+      <div class="n"><b>${esc(i.nombre)}</b><span>hay <b style="display:inline;color:var(--${s === 'c' ? 'bad' : s === 'w' ? 'warn' : 'ink'})">${fq(i.stock, i.unidad_base)}</b><span class="eqr">${b ? ' · = ' + fq(bBase(i, b), i.unidad_base) : ''}</span></span></div>
+      <div class="qty"><input type="number" inputmode="decimal" min="0" step="any" value="${b ? esc(b.v) : ''}" placeholder="0"><select>${selOpts(i, p)}</select></div>
+    </div>` }).join('') || '<div class="empty">Sin resultados.</div>';
+  updBatchBtn();
+}
+function updBatchBtn() {
+  const n = Object.keys(state.batch).length;
+  $('#batchGo').disabled = !n;
+  $('#batchGo').textContent = n ? `Registrar ${n} ${state.bTipo === 'salida' ? 'salida' : 'entrada'}${n > 1 ? 's' : ''}` : (state.bTipo === 'salida' ? 'Escribe las salidas' : 'Escribe las entradas');
+}
+function batchRow(row) {
+  const id = +row.dataset.id, i = state.ins.find(x => x.id === id), v = row.querySelector('input').value, p = row.querySelector('select').value;
+  if (v === '' || +v <= 0) delete state.batch[id]; else state.batch[id] = { v, p };
+  const b = state.batch[id];
+  row.classList.toggle('has', !!b); row.classList.toggle('err', !!b && state.bTipo === 'salida' && bBase(i, b) > +i.stock + 1e-6);
+  row.querySelector('.eqr').textContent = b ? ' · = ' + fq(bBase(i, b), i.unidad_base) : '';
+  updBatchBtn();
+}
+$('#batchList').oninput = e => { const r = e.target.closest('.srow'); if (r) batchRow(r) };
+$('#batchList').onchange = e => { const r = e.target.closest('.srow'); if (r && e.target.tagName === 'SELECT') batchRow(r) };
+$('#bq').oninput = renderBatch; $('#bCat').onchange = renderBatch;
+$('#batchSeg').onclick = e => { const b = e.target.closest('button'); if (!b) return; state.bTipo = b.dataset.t;
+  $$('#batchSeg button').forEach(x => { x.classList.toggle('on', x === b); x.classList.remove('salida', 'entrada'); if (x === b) x.classList.add(b.dataset.t) });
+  $('#detLbl').textContent = state.bTipo === 'salida' ? 'Destino / uso' : 'Proveedor / factura';
+  $('#bDet').placeholder = state.bTipo === 'salida' ? 'Ej: Producción yogurt, Km 18…' : 'Ej: Proveedor, # factura…'; renderBatch() };
+$('#batchGo').onclick = async () => {
+  if (!needWho()) return;
+  const items = Object.entries(state.batch).map(([id, b]) => [state.ins.find(i => i.id === +id), b]);
+  if (state.bTipo === 'salida' && items.some(([i, b]) => bBase(i, b) > +i.stock + 1e-6)) return toast('Hay salidas mayores que el stock (en rojo)', 1);
+  $('#batchGo').disabled = true; $('#batchGo').textContent = 'Registrando…';
+  let ok = 0, fail = [];
+  for (const [i, b] of items) { try { await api.mover(i.id, state.bTipo, bBase(i, b), b.p, parseFloat(b.v), $('#bDet').value.trim()); ok++; delete state.batch[i.id] } catch { fail.push(i.nombre) } }
+  toast(fail.length ? `${ok} registradas · fallaron: ${fail.join(', ')}` : `${ok} movimientos registrados ✓`, !!fail.length);
+  await refresh();
+};
+
+/* ===== PEDIDO ===== */
+// state.ped = { [insumo_id]: { v, p, x } }  x = agregado a mano (se muestra aunque esté en verde)
+state.ped = ls.get('mp_pedido', {});
+const savePed = () => ls.set('mp_pedido', state.ped);
+const pedCount = () => Object.values(state.ped).filter(o => +o.v > 0).length;
+function pedRows() {
+  const ord = { c: 0, w: 1, ok: 2 };
+  return state.ins.filter(i => estado(i) !== 'ok' || state.ped[i.id]).sort((a, b) => ord[estado(a)] - ord[estado(b)] || a.categoria.localeCompare(b.categoria) || a.nombre.localeCompare(b.nombre));
+}
+function sugerido(i) { // lo necesario para quedar al doble del nivel amarillo, en la presentación principal
+  const o = principal(i) ? { n: principal(i).n, f: principal(i).f } : findOpt(i);
+  const meta = Math.max(+i.nivel_alerta * 2, +i.nivel_alerta + o.f), falta = meta - +i.stock;
+  return { v: Math.max(1, Math.ceil(falta / o.f - 1e-9)), p: o.n };
+}
+// En el pedido se puede pedir en cualquier presentación, aunque no esté configurada en el insumo
+const PED_COMUNES = ['Bulto', 'Arroba', 'Caja', 'Paquete', 'Paca', 'Bolsa', 'Rollo', 'Lata', 'Frasco', 'Galón', 'Garrafa', 'Cuñete', 'Poma', 'Tarro', 'Fajo', 'Atado', 'Docena', 'Kilo', 'Libra', 'Litro', 'Unidad'];
+function pedOpts(i, sel) {
+  const mine = opts(i), have = new Set(mine.map(o => o.n.toLowerCase()));
+  const extra = [...PED_COMUNES, ...(sel && !have.has(sel.toLowerCase()) && !PED_COMUNES.includes(sel) ? [sel] : [])].filter(n => !have.has(n.toLowerCase()));
+  return `<optgroup label="De este producto">${mine.map(o => `<option value="${esc(o.n)}" ${o.n === sel ? 'selected' : ''}>${esc(optLbl(o, i))}</option>`).join('')}</optgroup>
+    <optgroup label="Otras presentaciones">${extra.map(n => `<option ${n === sel ? 'selected' : ''}>${esc(n)}</option>`).join('')}<option value="__otra">✏️ Otra…</option></optgroup>`;
+}
+function prowHTML(i) {
+  const o = state.ped[i.id], s = estado(i), p = o?.p || principal(i)?.n || findOpt(i).n;
+  return `<div class="prow ${o && +o.v > 0 ? 'has' : ''}" data-id="${i.id}">
+    <div class="n"><b>${esc(i.nombre)}</b><span>quedan <b style="display:inline;color:var(--${s === 'c' ? 'bad' : s === 'w' ? 'warn' : 'ink'})">${fq(i.stock, i.unidad_base)}</b>${equiv(i, i.stock) ? ' · ' + esc(equiv(i, i.stock).split(' · ')[0]) : ''}</span></div>
+    <div class="qty"><input type="number" inputmode="decimal" min="0" step="any" placeholder="0" value="${o ? esc(o.v) : ''}"><select>${pedOpts(i, p)}</select></div>
+    ${o?.x ? '<button class="rm" title="Quitar" data-rm>✕</button>' : ''}
+  </div>`;
+}
+function renderPed() {
+  const rows = pedRows(), c = state.ins.filter(i => estado(i) === 'c').length;
+  const sec = (t, its) => its.length ? `<div class="group"><h3>${t} <em>${its.length}</em></h3><div class="list">${its.map(prowHTML).join('')}</div></div>` : '';
+  const extra = rows.filter(i => estado(i) === 'ok');
+  $('#pedList').innerHTML = rows.length ? sec('🔴 Urgente', rows.filter(i => estado(i) === 'c')) + sec('🟡 Se está agotando', rows.filter(i => estado(i) === 'w')) + sec('➕ Agregados al pedido', extra)
+    : '<div class="panel empty">Todo en orden 👌 Si quieres pedir algo, búscalo arriba en “Agregar otro insumo”.</div>';
+  updPedBar();
+}
+function updPedBar() {
+  const n = pedCount();
+  $('#pedWa').disabled = $('#pedCopy').disabled = !n;
+  $('#pedWaTxt').textContent = n ? `Enviar pedido (${n}) por WhatsApp` : 'Escribe cantidades para pedir';
+  const b = $('#pedBadge'), c = state.ins.filter(i => estado(i) === 'c').length;
+  b.textContent = n || c; b.classList.toggle('hidden', !(n || c)); b.style.background = n ? 'var(--brand)' : 'var(--bad)';
+}
+function pedSet(row) {
+  const id = +row.dataset.id, v = row.querySelector('input').value, p = row.querySelector('select').value, prev = state.ped[id];
+  if ((v === '' || +v <= 0) && !prev?.x) delete state.ped[id]; else state.ped[id] = { v, p, x: prev?.x };
+  row.classList.toggle('has', +v > 0); savePed(); updPedBar();
+}
+$('#pedList').oninput = e => { const r = e.target.closest('.prow'); if (r) pedSet(r) };
+$('#pedList').onchange = e => {
+  const r = e.target.closest('.prow'); if (!r || e.target.tagName !== 'SELECT') return;
+  if (e.target.value === '__otra') {
+    const n = (prompt('¿En qué presentación lo vas a pedir? (Ej: Canasta, Saco, Bandeja)') || '').trim();
+    const i = state.ins.find(x => x.id === +r.dataset.id), prev = state.ped[i.id]?.p || principal(i)?.n || findOpt(i).n;
+    e.target.innerHTML = pedOpts(i, n ? n.charAt(0).toUpperCase() + n.slice(1) : prev);
+  }
+  pedSet(r);
+};
+$('#pedList').onclick = e => { if (e.target.dataset.rm != null) { delete state.ped[+e.target.closest('.prow').dataset.id]; savePed(); renderPed() } };
+$('#pedSug').onclick = () => {
+  let n = 0; state.ins.filter(i => estado(i) !== 'ok').forEach(i => { if (!(+state.ped[i.id]?.v > 0)) { state.ped[i.id] = { ...sugerido(i), x: state.ped[i.id]?.x }; n++ } });
+  savePed(); renderPed(); toast(n ? `Cantidades sugeridas para ${n} insumos · revísalas` : 'No hay insumos en rojo o amarillo sin cantidad');
+};
+$('#pedClr').onclick = () => { if (!pedCount() || confirm('¿Vaciar todas las cantidades del pedido?')) { state.ped = {}; savePed(); renderPed() } };
+$('#pedAddQ').oninput = () => {
+  const q = $('#pedAddQ').value.trim().toLowerCase(), r = $('#pedAddRes');
+  if (!q) { r.classList.add('hidden'); return }
+  const its = state.ins.filter(i => i.nombre.toLowerCase().includes(q)).slice(0, 12);
+  r.innerHTML = its.length ? its.map(i => `<div class="pres" data-id="${i.id}"><b>${esc(i.nombre)}</b><span>quedan ${fq(i.stock, i.unidad_base)}</span></div>`).join('') : '<div class="empty" style="padding:14px">Sin resultados</div>';
+  r.classList.remove('hidden');
+};
+$('#pedAddRes').onclick = e => { const it = e.target.closest('.pres'); if (it) pedAdd(+it.dataset.id) };
+function pedAdd(id) {
+  const i = state.ins.find(x => x.id === id);
+  state.ped[id] = { ...(state.ped[id] || sugerido(i)), x: 1 }; savePed();
+  $('#pedAddQ').value = ''; $('#pedAddRes').classList.add('hidden'); renderPed();
+  const row = $(`#pedList .prow[data-id="${id}"]`); if (row) { row.scrollIntoView({ block: 'center', behavior: 'smooth' }); row.querySelector('input').focus(); row.querySelector('input').select() }
+  toast(`${i.nombre} agregado al pedido`);
+}
+$('#mPed').onclick = () => { const id = state.cur.id; $('#dMov').close(); goView('ped'); pedAdd(id) };
+function pedItemsSel() {
+  return Object.entries(state.ped).filter(([, o]) => +o.v > 0).map(([id, o]) => { const i = state.ins.find(x => x.id === +id); return i && { i, v: +o.v, p: o.p } }).filter(Boolean)
+    .sort((a, b) => a.i.categoria.localeCompare(b.i.categoria) || a.i.nombre.localeCompare(b.i.nombre));
+}
+function pedTxt(items, nota, fecha) {
+  const f = (fecha ? new Date(fecha) : new Date()).toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' });
+  const g = {}; items.forEach(x => (g[x.cat] ||= []).push(x));
+  const body = Object.entries(g).map(([c, xs]) => `*${cap(c)}*\n` + xs.map(x => `• ${x.nombre}: *${fmt(x.cantidad)} ${plural(x.presentacion, x.cantidad)}*`).join('\n')).join('\n\n');
+  return `🐄 *LA VACA ORIGINAL*\n*Pedido de materia prima*\n${f.charAt(0).toUpperCase() + f.slice(1)}${nota ? '\n📝 ' + nota : ''}\n\n${body}\n\nTotal: ${items.length} producto${items.length > 1 ? 's' : ''}\nPide: ${state.who || '—'}`;
+}
+const pedSnapshot = () => pedItemsSel().map(({ i, v, p }) => ({ insumo_id: i.id, nombre: i.nombre, cat: i.categoria, cantidad: v, presentacion: p, stock: +i.stock, unidad_base: i.unidad_base }));
+async function pedEnviar(via) {
+  if (!needWho()) return;
+  const items = pedSnapshot(); if (!items.length) return;
+  const nota = $('#pedNota').value.trim(), txt = pedTxt(items, nota);
+  if (via === 'wa') window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
+  else { try { await navigator.clipboard.writeText(txt) } catch { return toast('No se pudo copiar', 1) } }
+  try { await api.guardarPedido({ items, nota, responsable: state.who }) } catch (e) { toast('Se envió, pero no se guardó en el historial: ' + e.message, 1); return }
+  state.ped = {}; savePed(); $('#pedNota').value = ''; renderPed();
+  toast(via === 'wa' ? 'Pedido enviado y guardado ✓' : 'Pedido copiado y guardado ✓');
+}
+$('#pedWa').onclick = () => pedEnviar('wa');
+$('#pedCopy').onclick = () => pedEnviar('copy');
+$('#pedSeg').onclick = e => { const b = e.target.closest('button'); if (!b) return;
+  $$('#pedSeg button').forEach(x => x.classList.toggle('on', x === b));
+  const env = b.dataset.t === 'env'; $('#pedArmar').classList.toggle('hidden', env); $('#pedEnv').classList.toggle('hidden', !env); $('#pedBar').classList.toggle('hidden', env);
+  if (env) loadPedidos() };
+async function loadPedidos() {
+  $('#pedEnv').innerHTML = '<div class="spin"></div>';
+  let ps; try { ps = await api.pedidos() } catch (e) { $('#pedEnv').innerHTML = `<div class="empty">${esc(e.message)}</div>`; return }
+  state.pedidos = ps;
+  $('#pedEnv').innerHTML = ps.length ? '<div class="list">' + ps.map((p, k) => { const d = new Date(p.created_at); return `<div class="penv">
+    <div class="h"><b>${d.toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short' })} · ${d.toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' })}</b><span>${esc(p.responsable || '—')}</span></div>
+    ${p.nota ? `<div style="font-size:12.5px;color:var(--ink2);margin-top:2px">📝 ${esc(p.nota)}</div>` : ''}
+    <ul>${p.items.map(x => `<li>${esc(x.nombre)}: <b>${fmt(x.cantidad)} ${esc(plural(x.presentacion, x.cantidad))}</b></li>`).join('')}</ul>
+    <div style="display:flex;gap:8px;margin-top:8px"><button class="btn g" data-re="${k}" style="padding:8px 12px;font-size:13px">Reenviar</button><button class="btn g" data-cp="${k}" style="padding:8px 12px;font-size:13px">Usar como base</button></div>
+  </div>` }).join('') + '</div>' : '<div class="panel empty">Todavía no se han enviado pedidos.</div>';
+}
+$('#pedEnv').onclick = async e => {
+  const re = e.target.dataset.re, cp = e.target.dataset.cp;
+  if (re != null) { const p = state.pedidos[+re]; window.open('https://wa.me/?text=' + encodeURIComponent(pedTxt(p.items, p.nota, p.created_at)), '_blank') }
+  if (cp != null) { state.pedidos[+cp].items.forEach(x => { if (state.ins.some(i => i.id === x.insumo_id)) state.ped[x.insumo_id] = { v: String(x.cantidad), p: x.presentacion, x: 1 } }); savePed(); $('#pedSeg button[data-t=armar]').click(); renderPed(); toast('Pedido cargado · ajusta las cantidades') }
+};
+
+/* ===== HISTORIAL ===== */
+const tipoTxt = { salida: 'Salida', entrada: 'Entrada', ajuste: 'Conteo', alta: 'Nuevo' };
+function presTxt(m) { // "10 Bultos" cuando se registró en una presentación distinta a la base
+  const i = m.mp_insumos || {}; if (!m.presentacion || m.cantidad_presentacion == null) return '';
+  const o = i.unidad_base ? findOpt(i, m.presentacion) : null; if (o && Math.abs(o.f - 1) < 1e-9 && !o.c) return '';
+  return `${fmt(m.cantidad_presentacion)} ${plural(m.presentacion, +m.cantidad_presentacion)}`;
+}
+function mvRow(m) {
+  const i = m.mp_insumos || {}, b = i.unidad_base || 'und', sg = m.tipo === 'salida' ? '−' : m.tipo === 'entrada' ? '+' : '=';
+  const h = new Date(m.created_at).toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' }), pt = presTxt(m);
+  return `<div class="mv"><div class="ic ${m.tipo}">${sg}</div>
+    <div class="t"><b>${esc(i.nombre || '')}</b>${m.presentacion ? `<span class="tag">${esc(m.presentacion)}</span>` : ''}<div>${tipoTxt[m.tipo]}${pt ? ' · ' + esc(pt) : ''}${m.detalle ? ' · ' + esc(m.detalle) : ''}</div><div>${h} · ${esc(m.responsable || '—')}</div></div>
+    <div class="a"><b>${sg}${fq(m.cantidad, b)}</b>${fq(m.stock_anterior, b)} → ${fq(m.stock_resultante, b)}</div></div>`;
+}
+async function loadHist() {
+  const f = $('#hFrom').value, t = $('#hTo').value;
+  const from = f ? new Date(f + 'T00:00:00').toISOString() : null, to = t ? new Date(new Date(t + 'T00:00:00').getTime() + 864e5).toISOString() : null;
+  $('#hList').innerHTML = '<div class="spin"></div>';
+  try { state.hist = await api.historial({ from, to, tipo: $('#hTipo').value }) } catch (e) { $('#hList').innerHTML = `<div class="empty">${esc(e.message)}</div>`; return }
+  const cur = $('#hPres').value, ps = [...new Set(state.hist.map(m => m.presentacion).filter(Boolean))].sort();
+  $('#hPres').innerHTML = '<option value="">Todas</option>' + ps.map(p => `<option ${p === cur ? 'selected' : ''}>${esc(p)}</option>`).join('');
+  renderHist();
+}
+function renderHist() {
+  const q = $('#hq').value.toLowerCase(), pr = $('#hPres').value;
+  const h = state.histF = state.hist.filter(m => (!q || (m.mp_insumos?.nombre || '').toLowerCase().includes(q)) && (!pr || m.presentacion === pr));
+  const ns = h.filter(m => m.tipo === 'salida').length, ne = h.filter(m => m.tipo === 'entrada').length;
+  $('#hSum').classList.toggle('hidden', !h.length);
+  $('#hSum').innerHTML = `<div class="kpi"><b>${h.length}</b><span>Movimientos</span></div><div class="kpi" style="background:var(--okbg);border-color:#BFDCC8"><b style="color:var(--ok)">${ne}</b><span>Entradas</span></div><div class="kpi c"><b>${ns}</b><span>Salidas</span></div>`;
+  if (!h.length) { $('#hList').innerHTML = '<div class="empty">No hay movimientos con ese filtro.</div>'; return }
+  const g = {}; h.forEach(m => { const d = new Date(m.created_at).toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); (g[d] ||= []).push(m) });
+  $('#hList').innerHTML = Object.entries(g).map(([d, ms]) => `<div class="day">${d.charAt(0).toUpperCase() + d.slice(1)}</div><div class="list">${ms.map(mvRow).join('')}</div>`).join('');
+}
+$('#hGo').onclick = loadHist; $('#hTipo').onchange = loadHist; $('#hq').oninput = renderHist; $('#hPres').onchange = renderHist;
+$('#hCsv').onclick = () => {
+  const h = state.histF || []; if (!h.length) return toast('Primero consulta un rango con movimientos', 1);
+  const cell = v => `"${String(v ?? '').replace(/"/g, '""')}"`, num = v => v == null ? '' : String(r6(+v)).replace('.', ',');
+  const lines = [['Fecha', 'Hora', 'Tipo', 'Categoría', 'Insumo', 'Cantidad registrada', 'Presentación', 'Cantidad en unidad base', 'Unidad base', 'Stock anterior', 'Stock resultante', 'Detalle', 'Responsable'].map(cell).join(';')]
+    .concat(h.map(m => { const d = new Date(m.created_at), i = m.mp_insumos || {}; return [d.toLocaleDateString('es-CO'), d.toLocaleTimeString('es-CO'), tipoTxt[m.tipo], i.categoria, i.nombre, num(m.cantidad_presentacion), m.presentacion, num(m.cantidad), i.unidad_base, num(m.stock_anterior), num(m.stock_resultante), m.detalle, m.responsable].map(cell).join(';') }));
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + lines.join('\n')], { type: 'text/csv' }));
+  a.download = `historial-materia-prima_${$('#hFrom').value}_${$('#hTo').value}.csv`; a.click();
+};
+
+/* ===== NAVEGACIÓN, RESPONSABLE, CONFIG ===== */
+function goView(v) {
+  $$('nav button').forEach(x => x.classList.toggle('on', x.dataset.v === v));
+  ['inv', 'sal', 'ped', 'his'].forEach(k => $('#v-' + k).classList.toggle('hidden', k !== v));
+  if (v === 'his') loadHist();
+  scrollTo(0, 0);
+}
+$$('nav button').forEach(b => b.onclick = () => goView(b.dataset.v));
+$$('[data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
+function setWho(n) { state.who = n; ls.set('mp_who', n); $('#whoName').textContent = n || 'Responsable' }
+function needWho() { if (state.who) return true; $('#wName').value = ''; $('#dWho').showModal(); return false }
+$('#whoBtn').onclick = () => { $('#wName').value = state.who; $('#dWho').showModal() };
+$('#wGo').onclick = () => { const n = $('#wName').value.trim(); if (!n) return toast('Escribe tu nombre', 1); setWho(n); $('#dWho').close() };
+$('#cfgBtn').onclick = () => { $('#cUrl').value = cfg.url; $('#cKey').value = cfg.key; $('#dCfg').showModal() };
+$('#cGo').onclick = () => { ls.set('mp_url', $('#cUrl').value.trim()); ls.set('mp_key', $('#cKey').value.trim()); location.reload() };
+if (SUPABASE_URL) $('#cfgBtn').classList.add('hidden');
+
+$('#hFrom').value = $('#hTo').value = today();
+setWho(state.who); if (!sb) $('#modeTag').classList.remove('hidden');
+refresh();
+if (!state.who) setTimeout(() => $('#dWho').showModal(), 400);
+</script>
+</body>
+</html>
