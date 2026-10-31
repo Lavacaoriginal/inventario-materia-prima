@@ -94,7 +94,7 @@ nav svg{width:22px;height:22px}
 .mv{display:flex;gap:12px;padding:11px 14px;border-top:1px solid var(--line);align-items:flex-start}
 .mv:first-child{border-top:0}
 .mv .ic{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;flex:none;font-weight:700}
-.mv .ic.salida{background:var(--badbg);color:var(--bad)} .mv .ic.entrada{background:var(--okbg);color:var(--ok)} .mv .ic.ajuste,.mv .ic.alta{background:#EFE8DA;color:var(--ink2)}
+.mv .ic.salida{background:var(--badbg);color:var(--bad)} .mv .ic.averia{background:#F3E8FF;color:#7E3AA8} .mv .ic.entrada{background:var(--okbg);color:var(--ok)} .mv .ic.ajuste,.mv .ic.alta{background:#EFE8DA;color:var(--ink2)}
 .mv .t{flex:1;min-width:0}
 .mv .t b{font-size:14px;font-weight:600}
 .mv .t div{font-size:12px;color:var(--ink2)}
@@ -147,6 +147,24 @@ dialog::backdrop{background:rgba(30,26,22,.55);backdrop-filter:blur(2px)}
 .prow{display:flex;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid var(--line)}.prow:first-child{border-top:0}.prow .n{flex:1;min-width:0}.prow .n b{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.prow .n span{font-size:12px;color:var(--ink2)}.prow .qty{width:180px;flex:none}.prow .qty input{width:64px;flex:none;padding:9px 6px;text-align:center;border:1px solid var(--line);border-radius:10px;background:#fff}.prow .qty select{flex:1;min-width:0;max-width:none;padding:9px 4px;font-size:12.5px}.prow.has{background:#FBF6EC}.prow.has input{border-color:var(--brand);font-weight:700}.prow .rm{border:0;background:none;color:var(--ink2);cursor:pointer;font-size:16px;padding:4px}.pres{padding:10px 14px;border-top:1px solid var(--line);cursor:pointer}.pres:first-child{border-top:0}.pres b{font-size:14px}.pres span{font-size:12px;color:var(--ink2);margin-left:6px}
 .penv{padding:12px 14px;border-top:1px solid var(--line)}.penv:first-child{border-top:0}.penv .h{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--ink2)}.penv .h b{color:var(--ink);font-size:14px}.penv ul{margin:6px 0 0;padding-left:18px;font-size:13px}
 @media(max-width:400px){.prow .qty{width:160px}}
+.bodbtn{margin-left:10px;flex:none;background:var(--gold);color:var(--ink);border:0;border-radius:999px;padding:7px 12px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.bodbtn:active{transform:scale(.97)}
+.bodgrid{display:grid;gap:10px}
+.bodopt{display:flex;align-items:center;gap:12px;border:2px solid var(--line);background:var(--card);border-radius:16px;padding:16px;cursor:pointer;text-align:left;width:100%}
+.bodopt.on{border-color:var(--brand);background:#FBF6EC}
+.bodopt .ic{width:44px;height:44px;border-radius:12px;background:var(--ink);color:var(--gold);display:grid;place-items:center;font-size:20px;flex:none}
+.bodopt b{display:block;font-family:Fraunces,serif;font-size:19px}
+.bodopt span{font-size:12.5px;color:var(--ink2)}
+@media(max-width:520px){.brand{display:none}.bodbtn{margin-left:0;font-size:14px;padding:8px 14px}.who{margin-left:auto}.chipbtn{max-width:110px}}
+.bodlbl{font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:var(--gold);vertical-align:middle}
+.seg button.on.averia{color:#7E3AA8}
+.seg{flex-wrap:nowrap}.seg button{white-space:nowrap;padding:9px 4px;font-size:13.5px}
+.motivos{display:flex;flex-wrap:wrap;gap:6px;margin:-2px 0 10px}
+.motivos button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 11px;font-size:12.5px;cursor:pointer}
+.motivos button.on{background:#7E3AA8;border-color:#7E3AA8;color:#fff}
+.kpi.av{background:#F3E8FF;border-color:#D8B4FE}.kpi.av b{color:#7E3AA8}
+#hSum{grid-template-columns:repeat(auto-fit,minmax(78px,1fr))}
+.avres{margin:6px 0 4px}
 </style>
 </head>
 <body>
@@ -156,6 +174,7 @@ dialog::backdrop{background:rgba(30,26,22,.55);backdrop-filter:blur(2px)}
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F5EFE4" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5c1 2 2.5 3 4 3M20 5c-1 2-2.5 3-4 3"/><path d="M8 8h8c1.7 0 3 1.3 3 3v2c0 3.9-3.1 7-7 7s-7-3.1-7-7v-2c0-1.7 1.3-3 3-3z"/><circle cx="9.5" cy="12" r=".6" fill="#F5EFE4"/><circle cx="14.5" cy="12" r=".6" fill="#F5EFE4"/><path d="M10 16.5h4"/></svg>
     </div>
     <div class="brand"><h1>La Vaca Original</h1><small>Materia prima</small></div>
+      <button class="bodbtn" id="bodBtn" title="Cambiar bodega">📍 <span id="bodName">—</span> <span aria-hidden="true">▾</span></button>
     <div class="who">
       <span id="modeTag" class="mode hidden">Demo</span>
       <button class="chipbtn" id="whoBtn" title="Responsable">👤 <span id="whoName">—</span></button>
@@ -181,15 +200,16 @@ dialog::backdrop{background:rgba(30,26,22,.55);backdrop-filter:blur(2px)}
   </section>
 
   <section id="v-sal" class="hidden">
-    <h2 class="ptitle">Movimiento del día</h2>
+    <h2 class="ptitle">Movimiento del día <span class="bodlbl"></span></h2>
     <p class="psub">Escribe la cantidad y elige en qué viene: bulto, kilo, libra, caja, unidad… El sistema lo convierte solo.</p>
     <div class="seg" id="batchSeg">
       <button class="on salida" data-t="salida">Salidas</button>
       <button data-t="entrada">Entradas</button>
+      <button data-t="averia">⚠ Averías</button>
     </div>
     <div class="panel">
       <div class="row2">
-        <div class="field"><label id="detLbl">Destino / uso</label><input id="bDet" placeholder="Ej: Producción yogurt, Km 18…"></div>
+        <div class="field"><label id="detLbl">Destino / uso</label><input id="bDet" placeholder="Ej: Producción yogurt, Km 18…"><div class="motivos hidden" id="bMot" style="margin:6px 0 0"></div></div>
         <div class="field"><label>Categoría</label><select id="bCat"></select></div>
       </div>
       <label class="search" style="margin-top:2px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity=".5"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="bq" placeholder="Filtrar insumos…" autocomplete="off"></label>
@@ -199,7 +219,7 @@ dialog::backdrop{background:rgba(30,26,22,.55);backdrop-filter:blur(2px)}
   </section>
 
   <section id="v-ped" class="hidden">
-    <h2 class="ptitle">Pedido</h2>
+    <h2 class="ptitle">Pedido <span class="bodlbl"></span></h2>
     <p class="psub">Escribe cuánto pedir de cada insumo y en qué presentación. Puedes agregar cualquier producto, aunque no esté en rojo.</p>
     <div class="seg" id="pedSeg"><button class="on" data-t="armar">Armar pedido</button><button data-t="env">Pedidos enviados</button></div>
     <div id="pedArmar">
@@ -222,13 +242,13 @@ dialog::backdrop{background:rgba(30,26,22,.55);backdrop-filter:blur(2px)}
   </section>
 
   <section id="v-his" class="hidden hist">
-    <h2 class="ptitle">Historial</h2>
+    <h2 class="ptitle">Historial <span class="bodlbl"></span></h2>
     <p class="psub">Cada movimiento queda con fecha, hora, responsable y la presentación en que se registró.</p>
     <div class="panel">
       <div class="filters">
         <div class="field"><label>Desde</label><input type="date" id="hFrom"></div>
         <div class="field"><label>Hasta</label><input type="date" id="hTo"></div>
-        <div class="field"><label>Tipo</label><select id="hTipo"><option value="">Todos</option><option value="entrada">Entradas</option><option value="salida">Salidas</option><option value="ajuste">Ajustes</option><option value="alta">Nuevos insumos</option></select></div>
+        <div class="field"><label>Tipo</label><select id="hTipo"><option value="">Todos</option><option value="entrada">Entradas</option><option value="salida">Salidas</option><option value="averia">Averías</option><option value="ajuste">Conteos</option><option value="alta">Nuevos insumos</option></select></div>
         <div class="field"><label>Presentación</label><select id="hPres"><option value="">Todas</option></select></div>
       </div>
       <div class="field"><label>Insumo</label><input id="hq" placeholder="Nombre…"></div>
@@ -256,10 +276,12 @@ dialog::backdrop{background:rgba(30,26,22,.55);backdrop-filter:blur(2px)}
     <div class="seg" id="mSeg">
       <button class="on salida" data-t="salida">− Salida</button>
       <button data-t="entrada">＋ Entrada</button>
+      <button data-t="averia">⚠ Avería</button>
       <button data-t="ajuste">Conteo</button>
     </div>
     <div class="field"><label id="mQtyLbl">Cantidad que sale</label><div class="qty"><input id="mQty" type="number" inputmode="decimal" min="0" step="any" placeholder="0"><select id="mPres"></select></div></div>
     <div class="eq" id="mEq"></div>
+    <div class="motivos hidden" id="mMot"></div>
     <div class="field"><label id="mDetLbl">Destino / uso</label><input id="mDet" placeholder="Opcional"></div>
     <button class="btn p" id="mGo" style="width:100%">Registrar salida</button>
     <button class="btn g" id="mPed" style="width:100%;margin-top:8px">🛒 Añadir al pedido</button>
@@ -267,7 +289,7 @@ dialog::backdrop{background:rgba(30,26,22,.55);backdrop-filter:blur(2px)}
       <summary class="link" style="list-style:none">⚙︎ Presentaciones, alertas y datos</summary>
       <div style="margin-top:10px">
         <div class="field"><label>Presentaciones (cómo llega o sale)</label><div id="ePE"></div></div>
-        <div class="field"><label>Niveles de alerta</label>
+        <div class="field"><label>Niveles de alerta · solo Bodega <span class="bodname"></span></label>
           <div class="row2">
             <div class="qty"><input id="eWarn" type="number" inputmode="decimal" step="any" placeholder="🟡"></div>
             <div class="qty"><input id="eCrit" type="number" inputmode="decimal" step="any" placeholder="🔴"></div>
@@ -310,6 +332,11 @@ dialog::backdrop{background:rgba(30,26,22,.55);backdrop-filter:blur(2px)}
     <div class="field"><label>🟡 Amarillo ≤ · 🔴 Rojo ≤</label><div class="qty"><input id="aWarn" type="number" step="any" placeholder="2"><input id="aCrit" type="number" step="any" placeholder="1"><select id="aTP"></select></div></div>
     <button class="btn p" id="aGo" style="width:100%">Agregar insumo</button>
   </div>
+</dialog>
+
+<dialog id="dBod">
+  <div class="dh"><div><h2>¿En qué bodega vas a trabajar?</h2><p>Todo lo que registres (entradas, salidas, conteos y pedidos) queda en esa bodega.</p></div><button class="x" data-close id="bodX">✕</button></div>
+  <div class="db"><div class="bodgrid" id="bodList"></div></div>
 </dialog>
 
 <dialog id="dWho">
@@ -387,6 +414,16 @@ function equiv(i, v) { // "20 Bultos + 10 kg · 2.020 lb"
 }
 const selOpts = (i, sel) => opts(i).map(o => `<option value="${esc(o.n)}" ${o.n === sel ? 'selected' : ''}>${esc(optLbl(o, i))}</option>`).join('');
 const defPres = (i, tipo) => tipo === 'entrada' ? (principal(i)?.n || findOpt(i).n) : findOpt(i).n;
+const resta = t => t === 'salida' || t === 'averia';
+const MOTIVOS = ['Vencido', 'Dañado / roto', 'Mal estado', 'Humedad / plaga', 'Contaminado', 'Llegó malo del proveedor', 'Otro'];
+function motivosUI(el, input) {
+  el.innerHTML = MOTIVOS.map(m => `<button type="button">${m}</button>`).join('');
+  el.onclick = e => { const b = e.target.closest('button'); if (!b) return;
+    el.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    const nota = input.value.includes(' · ') ? input.value.split(' · ').slice(1).join(' · ') : (MOTIVOS.includes(input.value) ? '' : input.value);
+    input.value = b.textContent === 'Otro' ? nota : b.textContent + (nota ? ' · ' + nota : ''); input.focus() };
+}
+const motivoSel = el => el.querySelector('button.on')?.textContent;
 const estado = i => +i.stock <= +i.nivel_critico ? 'c' : +i.stock <= +i.nivel_alerta ? 'w' : 'ok';
 const pill = s => `<span class="pill ${s}">${s === 'c' ? 'Crítico' : s === 'w' ? 'Por agotarse' : 'Suficiente'}</span>`;
 
@@ -394,63 +431,90 @@ const pill = s => `<span class="pill ${s}">${s === 'c' ? 'Crítico' : s === 'w' 
 const cfg = { url: SUPABASE_URL || ls.get('mp_url', ''), key: SUPABASE_ANON_KEY || ls.get('mp_key', '') };
 let sb = null;
 if (cfg.url && cfg.key && window.supabase) sb = supabase.createClient(cfg.url, cfg.key);
-const DK = 'mp_demo_v2';
+const DK = 'mp_demo_v3';
+const DEMO_BODEGAS = ['Valle', 'Quindío'];
+const LVL = ['stock', 'nivel_alerta', 'nivel_critico'];
 const demo = {
-  load() { let d = ls.get(DK, null); if (!d) { let id = 1; d = { ins: SEED.map(s => ({ id: id++, ...s, stock: 0, activo: true })), mov: [], seq: 1 }; ls.set(DK, d) } return d },
-  save(d) { ls.set(DK, d) }
+  load() {
+    let d = ls.get(DK, null);
+    if (!d) {
+      let id = 1; d = { ins: SEED.map(s => ({ id: id++, ...s, activo: true })), st: {}, mov: [], ped: [], seq: 1 };
+      DEMO_BODEGAS.forEach(b => { d.st[b] = {}; d.ins.forEach(i => d.st[b][i.id] = { stock: 0, nivel_alerta: i.nivel_alerta, nivel_critico: i.nivel_critico }) });
+      ls.set(DK, d);
+    }
+    return d;
+  },
+  save(d) { ls.set(DK, d) },
+  row(d, id) { const b = state.bodega; d.st[b] ||= {}; if (!d.st[b][id]) { const i = d.ins.find(x => x.id === id); d.st[b][id] = { stock: 0, nivel_alerta: i.nivel_alerta || 0, nivel_critico: i.nivel_critico || 0 } } return d.st[b][id] }
 };
 const api = {
+  async bodegas() {
+    if (!sb) return DEMO_BODEGAS;
+    const { data, error } = await sb.from('mp_bodegas').select('nombre').eq('activa', true).order('orden');
+    if (error) throw error; return data.map(b => b.nombre);
+  },
   async insumos() {
-    if (!sb) return demo.load().ins.filter(i => i.activo);
-    const { data, error } = await sb.from('mp_insumos').select('*').eq('activo', true).order('categoria').order('nombre');
-    if (error) throw error; return data;
+    if (!sb) { const d = demo.load(); const r = d.ins.filter(i => i.activo).map(i => ({ ...i, ...demo.row(d, i.id) })); demo.save(d); return r }
+    const [ins, st] = await Promise.all([
+      sb.from('mp_insumos').select('id,categoria,nombre,unidad_base,presentaciones,presentacion_principal,activo').eq('activo', true).order('categoria').order('nombre'),
+      sb.from('mp_stock').select('insumo_id,stock,nivel_alerta,nivel_critico').eq('bodega', state.bodega)
+    ]);
+    if (ins.error) throw ins.error; if (st.error) throw st.error;
+    const m = Object.fromEntries(st.data.map(r => [r.insumo_id, r]));
+    return ins.data.map(i => ({ ...i, stock: 0, nivel_alerta: 0, nivel_critico: 0, ...(m[i.id] || {}) }));
   },
   async mover(id, tipo, cantidad, pres, cantPres, detalle) {
     const resp = state.who || null; cantidad = r6(cantidad);
     if (!sb) {
-      const d = demo.load(), i = d.ins.find(x => x.id === id), ant = +i.stock;
-      if (tipo === 'salida' && cantidad > ant + 1e-6) throw new Error(`Stock insuficiente: hay ${fq(ant, i.unidad_base)}`);
-      const n = r6(tipo === 'entrada' ? ant + cantidad : tipo === 'salida' ? Math.max(ant - cantidad, 0) : cantidad);
-      i.stock = n; d.mov.unshift({ id: d.seq++, insumo_id: id, tipo, cantidad, presentacion: pres, cantidad_presentacion: cantPres, stock_anterior: ant, stock_resultante: n, detalle, responsable: resp, created_at: new Date().toISOString() });
+      const d = demo.load(), i = d.ins.find(x => x.id === id), r = demo.row(d, id), ant = +r.stock;
+      if (resta(tipo) && cantidad > ant + 1e-6) throw new Error(`Stock insuficiente: hay ${fq(ant, i.unidad_base)}`);
+      const n = r6(tipo === 'entrada' ? ant + cantidad : resta(tipo) ? Math.max(ant - cantidad, 0) : cantidad);
+      r.stock = n; d.mov.unshift({ id: d.seq++, bodega: state.bodega, insumo_id: id, tipo, cantidad, presentacion: pres, cantidad_presentacion: cantPres, stock_anterior: ant, stock_resultante: n, detalle, responsable: resp, created_at: new Date().toISOString() });
       demo.save(d); return n;
     }
-    const { data, error } = await sb.rpc('mp_registrar_movimiento', { p_insumo_id: id, p_tipo: tipo, p_cantidad: cantidad, p_presentacion: pres, p_cantidad_presentacion: cantPres, p_detalle: detalle || null, p_responsable: resp });
+    const { data, error } = await sb.rpc('mp_registrar_movimiento', { p_bodega: state.bodega, p_insumo_id: id, p_tipo: tipo, p_cantidad: cantidad, p_presentacion: pres, p_cantidad_presentacion: cantPres, p_detalle: detalle || null, p_responsable: resp });
     if (error) throw new Error(error.message.includes('Stock') ? 'Stock insuficiente' + error.message.split('insuficiente')[1] : error.message); return data;
   },
-  async crear(o) {
+  async crear(o) { // o trae nivel_alerta / nivel_critico: quedan como niveles por defecto en todas las bodegas
     if (!sb) {
       const d = demo.load(); if (d.ins.some(i => i.nombre === o.nombre)) throw new Error('Ya existe un insumo con ese nombre');
-      const id = Math.max(0, ...d.ins.map(i => i.id)) + 1; d.ins.push({ id, ...o, stock: 0, activo: true }); demo.save(d); return id;
+      const id = Math.max(0, ...d.ins.map(i => i.id)) + 1; d.ins.push({ id, ...o, activo: true });
+      Object.keys(d.st).forEach(b => d.st[b][id] = { stock: 0, nivel_alerta: o.nivel_alerta, nivel_critico: o.nivel_critico });
+      demo.save(d); return id;
     }
-    const { data, error } = await sb.from('mp_insumos').insert({ ...o, stock: 0 }).select('id').single();
+    const { data, error } = await sb.from('mp_insumos').insert(o).select('id').single();
     if (error) throw new Error(error.code === '23505' ? 'Ya existe un insumo con ese nombre' : error.message); return data.id;
   },
-  async editar(id, o) {
-    if (!sb) { const d = demo.load(); Object.assign(d.ins.find(i => i.id === id), o); demo.save(d); return }
-    const { error } = await sb.from('mp_insumos').update(o).eq('id', id); if (error) throw new Error(error.code === '23505' ? 'Ya existe un insumo con ese nombre' : error.message);
+  async editar(id, o) { // nombre, categoría y presentaciones son de todas las bodegas; las alertas solo de la bodega actual
+    const cat = {}, lvl = {};
+    Object.entries(o).forEach(([k, v]) => (LVL.includes(k) ? lvl : cat)[k] = v);
+    if (!sb) { const d = demo.load(); Object.assign(d.ins.find(i => i.id === id), cat); Object.assign(demo.row(d, id), lvl); demo.save(d); return }
+    if (Object.keys(cat).length) { const { error } = await sb.from('mp_insumos').update(cat).eq('id', id); if (error) throw new Error(error.code === '23505' ? 'Ya existe un insumo con ese nombre' : error.message) }
+    if (Object.keys(lvl).length) { const { error } = await sb.from('mp_stock').update(lvl).eq('insumo_id', id).eq('bodega', state.bodega); if (error) throw error }
   },
   async guardarPedido(p) {
+    p = { ...p, bodega: state.bodega };
     if (!sb) { const d = demo.load(); (d.ped ||= []).unshift({ id: Date.now(), ...p, created_at: new Date().toISOString() }); demo.save(d); return }
     const { error } = await sb.from('mp_pedidos').insert(p); if (error) throw error;
   },
   async pedidos() {
-    if (!sb) return demo.load().ped || [];
-    const { data, error } = await sb.from('mp_pedidos').select('*').order('created_at', { ascending: false }).limit(60); if (error) throw error; return data;
+    if (!sb) return (demo.load().ped || []).filter(p => p.bodega === state.bodega);
+    const { data, error } = await sb.from('mp_pedidos').select('*').eq('bodega', state.bodega).order('created_at', { ascending: false }).limit(60); if (error) throw error; return data;
   },
   async historial({ from, to, tipo, insumo_id, limit }) {
     if (!sb) {
       const d = demo.load(), map = Object.fromEntries(d.ins.map(i => [i.id, i]));
-      return d.mov.filter(m => (!from || m.created_at >= from) && (!to || m.created_at < to) && (!tipo || m.tipo === tipo) && (!insumo_id || m.insumo_id === insumo_id))
+      return d.mov.filter(m => m.bodega === state.bodega && (!from || m.created_at >= from) && (!to || m.created_at < to) && (!tipo || m.tipo === tipo) && (!insumo_id || m.insumo_id === insumo_id))
         .slice(0, limit || 5000).map(m => ({ ...m, mp_insumos: map[m.insumo_id] }));
     }
-    let q = sb.from('mp_movimientos').select('*, mp_insumos(nombre,unidad_base,categoria,presentaciones,presentacion_principal)').order('created_at', { ascending: false }).limit(limit || 5000);
+    let q = sb.from('mp_movimientos').select('*, mp_insumos(nombre,unidad_base,categoria,presentaciones,presentacion_principal)').eq('bodega', state.bodega).order('created_at', { ascending: false }).limit(limit || 5000);
     if (from) q = q.gte('created_at', from); if (to) q = q.lt('created_at', to);
     if (tipo) q = q.eq('tipo', tipo); if (insumo_id) q = q.eq('insumo_id', insumo_id);
     const { data, error } = await q; if (error) throw error; return data;
   }
 };
 
-const state = { ins: [], cat: 'TODAS', st: 'all', q: '', who: ls.get('mp_who', ''), batch: {}, bTipo: 'salida', cur: null, mTipo: 'salida', hist: [], histF: [] };
+const state = { bodega: ls.get('mp_bodega', ''), bodegas: [], ins: [], cat: 'TODAS', st: 'all', q: '', who: ls.get('mp_who', ''), batch: {}, bTipo: 'salida', cur: null, mTipo: 'salida', hist: [], histF: [] };
 const cats = () => [...new Set(state.ins.map(i => i.categoria))];
 async function refresh() {
   try { state.ins = await api.insumos() }
@@ -514,16 +578,18 @@ function updEq() {
   const i = state.cur, o = findOpt(i, $('#mPres').value), v = parseFloat($('#mQty').value);
   if (isNaN(v) || v < 0) { $('#mEq').innerHTML = ''; return }
   const base = r6(v * o.f), t = state.mTipo;
-  const nuevo = t === 'entrada' ? +i.stock + base : t === 'salida' ? +i.stock - base : base;
+  const nuevo = t === 'entrada' ? +i.stock + base : resta(t) ? +i.stock - base : base;
   $('#mEq').innerHTML = (Math.abs(o.f - 1) > 1e-9 ? `= <b>${fq(base, i.unidad_base)}</b> · ` : '') +
     (nuevo < -1e-6 ? `<span style="color:var(--bad)">No alcanza: hay ${fq(i.stock, i.unidad_base)}</span>` : `Quedará <b>${fq(nuevo, i.unidad_base)}</b>${equiv(i, nuevo) ? ' (' + esc(equiv(i, nuevo)) + ')' : ''}`);
 }
 function setMTipo(t) {
   state.mTipo = t;
-  $$('#mSeg button').forEach(b => { b.classList.toggle('on', b.dataset.t === t); b.classList.remove('salida', 'entrada'); if (b.dataset.t === t && t !== 'ajuste') b.classList.add(t) });
-  $('#mQtyLbl').textContent = t === 'salida' ? 'Cantidad que sale' : t === 'entrada' ? 'Cantidad que entra' : 'Lo que hay realmente (conteo físico)';
-  $('#mDetLbl').textContent = t === 'salida' ? 'Destino / uso' : t === 'entrada' ? 'Proveedor / factura' : 'Motivo del ajuste';
-  $('#mGo').textContent = t === 'salida' ? 'Registrar salida' : t === 'entrada' ? 'Registrar entrada' : 'Guardar conteo';
+  $$('#mSeg button').forEach(b => { b.classList.toggle('on', b.dataset.t === t); b.classList.remove('salida', 'entrada', 'averia'); if (b.dataset.t === t && t !== 'ajuste') b.classList.add(t) });
+  const L = { salida: ['Cantidad que sale', 'Destino / uso', 'Registrar salida', 'Opcional'], entrada: ['Cantidad que entra', 'Proveedor / factura', 'Registrar entrada', 'Opcional'],
+    averia: ['Cantidad dañada que se descarta', 'Motivo de la avería (obligatorio)', 'Registrar avería', 'Elige un motivo o escríbelo'], ajuste: ['Lo que hay realmente (conteo físico)', 'Motivo del ajuste', 'Guardar conteo', 'Opcional'] }[t];
+  $('#mQtyLbl').textContent = L[0]; $('#mDetLbl').textContent = L[1]; $('#mGo').textContent = L[2]; $('#mDet').placeholder = L[3];
+  $('#mGo').style.background = t === 'averia' ? '#7E3AA8' : '';
+  $('#mMot').classList.toggle('hidden', t !== 'averia'); if (t === 'averia') motivosUI($('#mMot'), $('#mDet'));
   $('#mPres').innerHTML = selOpts(state.cur, defPres(state.cur, t)); updEq();
 }
 $('#mSeg').onclick = e => { const b = e.target.closest('button'); if (b) setMTipo(b.dataset.t) };
@@ -553,6 +619,7 @@ $('#mGo').onclick = async () => {
   if (!needWho()) return;
   const i = state.cur, v = parseFloat($('#mQty').value), o = findOpt(i, $('#mPres').value);
   if (isNaN(v) || v < 0 || (state.mTipo !== 'ajuste' && v === 0)) return toast('Escribe una cantidad válida', 1);
+  if (state.mTipo === 'averia' && !$('#mDet').value.trim()) return toast('Escribe o elige el motivo de la avería', 1);
   $('#mGo').disabled = true;
   try { await api.mover(i.id, state.mTipo, v * o.f, o.n, v, $('#mDet').value.trim()); $('#dMov').close(); toast('Movimiento registrado ✓'); await refresh() }
   catch (e) { toast(e.message, 1) } finally { $('#mGo').disabled = false }
@@ -613,7 +680,7 @@ function renderBatch() {
   const q = $('#bq').value.toLowerCase(), c = $('#bCat').value;
   const rows = state.ins.filter(i => (!c || i.categoria === c) && (!q || i.nombre.toLowerCase().includes(q)));
   $('#batchList').innerHTML = rows.map(i => { const b = state.batch[i.id], p = b?.p || defPres(i, state.bTipo), s = estado(i);
-    const err = b && state.bTipo === 'salida' && bBase(i, b) > +i.stock + 1e-6; return `
+    const err = b && resta(state.bTipo) && bBase(i, b) > +i.stock + 1e-6; return `
     <div class="srow ${b ? 'has' : ''} ${err ? 'err' : ''}" data-id="${i.id}">
       <div class="n"><b>${esc(i.nombre)}</b><span>hay <b style="display:inline;color:var(--${s === 'c' ? 'bad' : s === 'w' ? 'warn' : 'ink'})">${fq(i.stock, i.unidad_base)}</b><span class="eqr">${b ? ' · = ' + fq(bBase(i, b), i.unidad_base) : ''}</span></span></div>
       <div class="qty"><input type="number" inputmode="decimal" min="0" step="any" value="${b ? esc(b.v) : ''}" placeholder="0"><select>${selOpts(i, p)}</select></div>
@@ -623,13 +690,15 @@ function renderBatch() {
 function updBatchBtn() {
   const n = Object.keys(state.batch).length;
   $('#batchGo').disabled = !n;
-  $('#batchGo').textContent = n ? `Registrar ${n} ${state.bTipo === 'salida' ? 'salida' : 'entrada'}${n > 1 ? 's' : ''}` : (state.bTipo === 'salida' ? 'Escribe las salidas' : 'Escribe las entradas');
+  const W = { salida: ['salida', 'salidas'], entrada: ['entrada', 'entradas'], averia: ['avería', 'averías'] }[state.bTipo];
+  $('#batchGo').textContent = n ? `Registrar ${n} ${W[n > 1 ? 1 : 0]}` : `Escribe las ${W[1]}`;
+  $('#batchGo').style.background = state.bTipo === 'averia' ? '#7E3AA8' : '';
 }
 function batchRow(row) {
   const id = +row.dataset.id, i = state.ins.find(x => x.id === id), v = row.querySelector('input').value, p = row.querySelector('select').value;
   if (v === '' || +v <= 0) delete state.batch[id]; else state.batch[id] = { v, p };
   const b = state.batch[id];
-  row.classList.toggle('has', !!b); row.classList.toggle('err', !!b && state.bTipo === 'salida' && bBase(i, b) > +i.stock + 1e-6);
+  row.classList.toggle('has', !!b); row.classList.toggle('err', !!b && resta(state.bTipo) && bBase(i, b) > +i.stock + 1e-6);
   row.querySelector('.eqr').textContent = b ? ' · = ' + fq(bBase(i, b), i.unidad_base) : '';
   updBatchBtn();
 }
@@ -637,13 +706,17 @@ $('#batchList').oninput = e => { const r = e.target.closest('.srow'); if (r) bat
 $('#batchList').onchange = e => { const r = e.target.closest('.srow'); if (r && e.target.tagName === 'SELECT') batchRow(r) };
 $('#bq').oninput = renderBatch; $('#bCat').onchange = renderBatch;
 $('#batchSeg').onclick = e => { const b = e.target.closest('button'); if (!b) return; state.bTipo = b.dataset.t;
-  $$('#batchSeg button').forEach(x => { x.classList.toggle('on', x === b); x.classList.remove('salida', 'entrada'); if (x === b) x.classList.add(b.dataset.t) });
-  $('#detLbl').textContent = state.bTipo === 'salida' ? 'Destino / uso' : 'Proveedor / factura';
-  $('#bDet').placeholder = state.bTipo === 'salida' ? 'Ej: Producción yogurt, Km 18…' : 'Ej: Proveedor, # factura…'; renderBatch() };
+  $$('#batchSeg button').forEach(x => { x.classList.toggle('on', x === b); x.classList.remove('salida', 'entrada', 'averia'); if (x === b) x.classList.add(b.dataset.t) });
+  const t = state.bTipo;
+  $('#detLbl').textContent = t === 'salida' ? 'Destino / uso' : t === 'entrada' ? 'Proveedor / factura' : 'Motivo de la avería (obligatorio)';
+  $('#bDet').placeholder = t === 'salida' ? 'Ej: Producción yogurt, Km 18…' : t === 'entrada' ? 'Ej: Proveedor, # factura…' : 'Elige un motivo o escríbelo';
+  $('#bDet').value = ''; $('#bMot').classList.toggle('hidden', t !== 'averia'); if (t === 'averia') motivosUI($('#bMot'), $('#bDet'));
+  renderBatch() };
 $('#batchGo').onclick = async () => {
   if (!needWho()) return;
   const items = Object.entries(state.batch).map(([id, b]) => [state.ins.find(i => i.id === +id), b]);
-  if (state.bTipo === 'salida' && items.some(([i, b]) => bBase(i, b) > +i.stock + 1e-6)) return toast('Hay salidas mayores que el stock (en rojo)', 1);
+  if (resta(state.bTipo) && items.some(([i, b]) => bBase(i, b) > +i.stock + 1e-6)) return toast('Hay cantidades mayores que el stock (en rojo)', 1);
+  if (state.bTipo === 'averia' && !$('#bDet').value.trim()) return toast('Escribe o elige el motivo de la avería', 1);
   $('#batchGo').disabled = true; $('#batchGo').textContent = 'Registrando…';
   let ok = 0, fail = [];
   for (const [i, b] of items) { try { await api.mover(i.id, state.bTipo, bBase(i, b), b.p, parseFloat(b.v), $('#bDet').value.trim()); ok++; delete state.batch[i.id] } catch { fail.push(i.nombre) } }
@@ -653,8 +726,9 @@ $('#batchGo').onclick = async () => {
 
 /* ===== PEDIDO ===== */
 // state.ped = { [insumo_id]: { v, p, x } }  x = agregado a mano (se muestra aunque esté en verde)
-state.ped = ls.get('mp_pedido', {});
-const savePed = () => ls.set('mp_pedido', state.ped);
+const pedKey = () => 'mp_pedido_' + state.bodega;
+state.ped = {};
+const savePed = () => ls.set(pedKey(), state.ped);
 const pedCount = () => Object.values(state.ped).filter(o => +o.v > 0).length;
 function pedRows() {
   const ord = { c: 0, w: 1, ok: 2 };
@@ -737,11 +811,11 @@ function pedItemsSel() {
   return Object.entries(state.ped).filter(([, o]) => +o.v > 0).map(([id, o]) => { const i = state.ins.find(x => x.id === +id); return i && { i, v: +o.v, p: o.p } }).filter(Boolean)
     .sort((a, b) => a.i.categoria.localeCompare(b.i.categoria) || a.i.nombre.localeCompare(b.i.nombre));
 }
-function pedTxt(items, nota, fecha) {
+function pedTxt(items, nota, fecha, bod) {
   const f = (fecha ? new Date(fecha) : new Date()).toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' });
   const g = {}; items.forEach(x => (g[x.cat] ||= []).push(x));
   const body = Object.entries(g).map(([c, xs]) => `*${cap(c)}*\n` + xs.map(x => `• ${x.nombre}: *${fmt(x.cantidad)} ${plural(x.presentacion, x.cantidad)}*`).join('\n')).join('\n\n');
-  return `🐄 *LA VACA ORIGINAL*\n*Pedido de materia prima*\n${f.charAt(0).toUpperCase() + f.slice(1)}${nota ? '\n📝 ' + nota : ''}\n\n${body}\n\nTotal: ${items.length} producto${items.length > 1 ? 's' : ''}\nPide: ${state.who || '—'}`;
+  return `🐄 *LA VACA ORIGINAL*\n*Pedido de materia prima · Bodega ${bod || state.bodega}*\n${f.charAt(0).toUpperCase() + f.slice(1)}${nota ? '\n📝 ' + nota : ''}\n\n${body}\n\nTotal: ${items.length} producto${items.length > 1 ? 's' : ''}\nPide: ${state.who || '—'}`;
 }
 const pedSnapshot = () => pedItemsSel().map(({ i, v, p }) => ({ insumo_id: i.id, nombre: i.nombre, cat: i.categoria, cantidad: v, presentacion: p, stock: +i.stock, unidad_base: i.unidad_base }));
 async function pedEnviar(via) {
@@ -773,21 +847,21 @@ async function loadPedidos() {
 }
 $('#pedEnv').onclick = async e => {
   const re = e.target.dataset.re, cp = e.target.dataset.cp;
-  if (re != null) { const p = state.pedidos[+re]; window.open('https://wa.me/?text=' + encodeURIComponent(pedTxt(p.items, p.nota, p.created_at)), '_blank') }
+  if (re != null) { const p = state.pedidos[+re]; window.open('https://wa.me/?text=' + encodeURIComponent(pedTxt(p.items, p.nota, p.created_at, p.bodega)), '_blank') }
   if (cp != null) { state.pedidos[+cp].items.forEach(x => { if (state.ins.some(i => i.id === x.insumo_id)) state.ped[x.insumo_id] = { v: String(x.cantidad), p: x.presentacion, x: 1 } }); savePed(); $('#pedSeg button[data-t=armar]').click(); renderPed(); toast('Pedido cargado · ajusta las cantidades') }
 };
 
 /* ===== HISTORIAL ===== */
-const tipoTxt = { salida: 'Salida', entrada: 'Entrada', ajuste: 'Conteo', alta: 'Nuevo' };
+const tipoTxt = { salida: 'Salida', entrada: 'Entrada', averia: 'Avería', ajuste: 'Conteo', alta: 'Nuevo' };
 function presTxt(m) { // "10 Bultos" cuando se registró en una presentación distinta a la base
   const i = m.mp_insumos || {}; if (!m.presentacion || m.cantidad_presentacion == null) return '';
   const o = i.unidad_base ? findOpt(i, m.presentacion) : null; if (o && Math.abs(o.f - 1) < 1e-9 && !o.c) return '';
   return `${fmt(m.cantidad_presentacion)} ${plural(m.presentacion, +m.cantidad_presentacion)}`;
 }
 function mvRow(m) {
-  const i = m.mp_insumos || {}, b = i.unidad_base || 'und', sg = m.tipo === 'salida' ? '−' : m.tipo === 'entrada' ? '+' : '=';
+  const i = m.mp_insumos || {}, b = i.unidad_base || 'und', sg = resta(m.tipo) ? '−' : m.tipo === 'entrada' ? '+' : '=';
   const h = new Date(m.created_at).toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' }), pt = presTxt(m);
-  return `<div class="mv"><div class="ic ${m.tipo}">${sg}</div>
+  return `<div class="mv"><div class="ic ${m.tipo}">${m.tipo === 'averia' ? '⚠' : sg}</div>
     <div class="t"><b>${esc(i.nombre || '')}</b>${m.presentacion ? `<span class="tag">${esc(m.presentacion)}</span>` : ''}<div>${tipoTxt[m.tipo]}${pt ? ' · ' + esc(pt) : ''}${m.detalle ? ' · ' + esc(m.detalle) : ''}</div><div>${h} · ${esc(m.responsable || '—')}</div></div>
     <div class="a"><b>${sg}${fq(m.cantidad, b)}</b>${fq(m.stock_anterior, b)} → ${fq(m.stock_resultante, b)}</div></div>`;
 }
@@ -803,21 +877,26 @@ async function loadHist() {
 function renderHist() {
   const q = $('#hq').value.toLowerCase(), pr = $('#hPres').value;
   const h = state.histF = state.hist.filter(m => (!q || (m.mp_insumos?.nombre || '').toLowerCase().includes(q)) && (!pr || m.presentacion === pr));
-  const ns = h.filter(m => m.tipo === 'salida').length, ne = h.filter(m => m.tipo === 'entrada').length;
+  const ns = h.filter(m => m.tipo === 'salida').length, ne = h.filter(m => m.tipo === 'entrada').length, av = h.filter(m => m.tipo === 'averia');
   $('#hSum').classList.toggle('hidden', !h.length);
-  $('#hSum').innerHTML = `<div class="kpi"><b>${h.length}</b><span>Movimientos</span></div><div class="kpi" style="background:var(--okbg);border-color:#BFDCC8"><b style="color:var(--ok)">${ne}</b><span>Entradas</span></div><div class="kpi c"><b>${ns}</b><span>Salidas</span></div>`;
+  $('#hSum').innerHTML = `<div class="kpi"><b>${h.length}</b><span>Movimientos</span></div><div class="kpi" style="background:var(--okbg);border-color:#BFDCC8"><b style="color:var(--ok)">${ne}</b><span>Entradas</span></div><div class="kpi c"><b>${ns}</b><span>Salidas</span></div>` + (av.length ? `<div class="kpi av"><b>${av.length}</b><span>Averías</span></div>` : '');
   if (!h.length) { $('#hList').innerHTML = '<div class="empty">No hay movimientos con ese filtro.</div>'; return }
+  let res = '';
+  if (av.length) { // total perdido por insumo en el periodo
+    const t = {}; av.forEach(m => { const i = m.mp_insumos || {}, k = i.nombre; (t[k] ||= { i, q: 0, n: 0 }); t[k].q += +m.cantidad; t[k].n++ });
+    res = `<div class="day">⚠ Total en averías del periodo</div><div class="list avres">${Object.values(t).sort((a, b) => b.n - a.n).map(x => `<div class="mv"><div class="ic averia">⚠</div><div class="t"><b>${esc(x.i.nombre)}</b><div>${x.n} registro${x.n > 1 ? 's' : ''}</div></div><div class="a"><b>${fq(x.q, x.i.unidad_base || 'und')}</b>${x.i.unidad_base ? esc(equiv(x.i, x.q).split(' · ')[0]) : ''}</div></div>`).join('')}</div>`;
+  }
   const g = {}; h.forEach(m => { const d = new Date(m.created_at).toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); (g[d] ||= []).push(m) });
-  $('#hList').innerHTML = Object.entries(g).map(([d, ms]) => `<div class="day">${d.charAt(0).toUpperCase() + d.slice(1)}</div><div class="list">${ms.map(mvRow).join('')}</div>`).join('');
+  $('#hList').innerHTML = res + Object.entries(g).map(([d, ms]) => `<div class="day">${d.charAt(0).toUpperCase() + d.slice(1)}</div><div class="list">${ms.map(mvRow).join('')}</div>`).join('');
 }
 $('#hGo').onclick = loadHist; $('#hTipo').onchange = loadHist; $('#hq').oninput = renderHist; $('#hPres').onchange = renderHist;
 $('#hCsv').onclick = () => {
   const h = state.histF || []; if (!h.length) return toast('Primero consulta un rango con movimientos', 1);
   const cell = v => `"${String(v ?? '').replace(/"/g, '""')}"`, num = v => v == null ? '' : String(r6(+v)).replace('.', ',');
-  const lines = [['Fecha', 'Hora', 'Tipo', 'Categoría', 'Insumo', 'Cantidad registrada', 'Presentación', 'Cantidad en unidad base', 'Unidad base', 'Stock anterior', 'Stock resultante', 'Detalle', 'Responsable'].map(cell).join(';')]
-    .concat(h.map(m => { const d = new Date(m.created_at), i = m.mp_insumos || {}; return [d.toLocaleDateString('es-CO'), d.toLocaleTimeString('es-CO'), tipoTxt[m.tipo], i.categoria, i.nombre, num(m.cantidad_presentacion), m.presentacion, num(m.cantidad), i.unidad_base, num(m.stock_anterior), num(m.stock_resultante), m.detalle, m.responsable].map(cell).join(';') }));
+  const lines = [['Bodega', 'Fecha', 'Hora', 'Tipo', 'Categoría', 'Insumo', 'Cantidad registrada', 'Presentación', 'Cantidad en unidad base', 'Unidad base', 'Stock anterior', 'Stock resultante', 'Detalle', 'Responsable'].map(cell).join(';')]
+    .concat(h.map(m => { const d = new Date(m.created_at), i = m.mp_insumos || {}; return [state.bodega, d.toLocaleDateString('es-CO'), d.toLocaleTimeString('es-CO'), tipoTxt[m.tipo], i.categoria, i.nombre, num(m.cantidad_presentacion), m.presentacion, num(m.cantidad), i.unidad_base, num(m.stock_anterior), num(m.stock_resultante), m.detalle, m.responsable].map(cell).join(';') }));
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + lines.join('\n')], { type: 'text/csv' }));
-  a.download = `historial-materia-prima_${$('#hFrom').value}_${$('#hTo').value}.csv`; a.click();
+  a.download = `historial-materia-prima_${state.bodega}_${$('#hFrom').value}_${$('#hTo').value}.csv`; a.click();
 };
 
 /* ===== NAVEGACIÓN, RESPONSABLE, CONFIG ===== */
@@ -839,8 +918,35 @@ if (SUPABASE_URL) $('#cfgBtn').classList.add('hidden');
 
 $('#hFrom').value = $('#hTo').value = today();
 setWho(state.who); if (!sb) $('#modeTag').classList.remove('hidden');
-refresh();
-if (!state.who) setTimeout(() => $('#dWho').showModal(), 400);
+
+/* ===== BODEGAS ===== */
+function setBodega(b) {
+  const changed = state.bodega && state.bodega !== b;
+  state.bodega = b; ls.set('mp_bodega', b); $('#bodName').textContent = b;
+  $$('.bodlbl').forEach(e => e.textContent = '· ' + b); $$('.bodname').forEach(e => e.textContent = b);
+  state.batch = {}; state.hist = []; state.histF = []; $('#hList').innerHTML = ''; $('#hSum').classList.add('hidden');
+  state.ped = ls.get(pedKey(), {});
+  document.title = `Materia Prima · ${b} · La Vaca Original`;
+  if (changed) toast(`Ahora trabajas en Bodega ${b}`);
+  $('#invList').innerHTML = '<div class="spin"></div>';
+  refresh().then(() => { if (!$('#v-his').classList.contains('hidden')) loadHist(); if (!$('#pedEnv').classList.contains('hidden')) loadPedidos() });
+}
+function openBod(force) {
+  $('#bodList').innerHTML = state.bodegas.map(b => `<button class="bodopt ${b === state.bodega ? 'on' : ''}" data-b="${esc(b)}"><div class="ic">📍</div><div><b>Bodega ${esc(b)}</b><span>${b === state.bodega ? 'Bodega actual' : 'Tocar para trabajar aquí'}</span></div></button>`).join('');
+  $('#bodX').classList.toggle('hidden', !!force);
+  $('#dBod').showModal();
+}
+$('#bodList').onclick = e => { const o = e.target.closest('.bodopt'); if (!o) return; $('#dBod').close(); if (o.dataset.b !== state.bodega) setBodega(o.dataset.b); afterBod() };
+$('#dBod').addEventListener('cancel', e => { if (!state.bodega) e.preventDefault() });
+$('#bodBtn').onclick = () => openBod(false);
+function afterBod() { if (!state.who) setTimeout(() => $('#dWho').showModal(), 200) }
+
+(async () => {
+  try { state.bodegas = await api.bodegas() }
+  catch (e) { $('#invList').innerHTML = `<div class="empty">No se pudieron cargar las bodegas.<br><small>${esc(e.message)}</small><br><small>¿Ya corriste bodegas.sql en Supabase?</small></div>`; return }
+  if (state.bodega && state.bodegas.includes(state.bodega)) { setBodega(state.bodega); afterBod() }
+  else { state.bodega = ''; $('#invList').innerHTML = '<div class="empty">Elige una bodega para empezar.</div>'; openBod(true) }
+})();
 </script>
 </body>
 </html>
