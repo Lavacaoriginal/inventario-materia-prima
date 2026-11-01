@@ -3,16 +3,31 @@
   "short_name": "Materia Prima",
   "description": "Inventario de materia prima de las bodegas de La Vaca Original",
   "lang": "es-CO",
-  "start_url": "./",
+  "start_url": "./index.html?app=1",
   "scope": "./",
-  "id": "./",
+  "id": "lvo-materia-prima-v2",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#F4F4F2",
   "theme_color": "#1F1A17",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }

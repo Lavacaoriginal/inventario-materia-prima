@@ -1,6 +1,6 @@
 // Service worker · Materia Prima La Vaca Original
 // Permite instalar la app y abrirla aunque falle el internet (los datos siempre vienen de Supabase).
-const CACHE = 'mp-v1';
+const CACHE = 'mp-v2';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png'];
 
 self.addEventListener('install', e => {
