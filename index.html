@@ -156,7 +156,7 @@ dialog::backdrop{background:rgba(30,26,22,.55);backdrop-filter:blur(2px)}
 .srow .qty input{width:70px;flex:none;padding:9px 6px}
 .srow .qty select{max-width:none;flex:1;padding:9px 4px;font-size:12.5px;min-width:0}
 .pe{border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--bg);margin-bottom:10px}
-.pe .pr{display:grid;grid-template-columns:1fr 92px auto 30px;gap:6px;align-items:center;margin-bottom:6px}
+.pe .pr{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) auto 30px;gap:6px;align-items:center;margin-bottom:6px}
 .pe .pr input{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 10px;width:100%;min-width:0}
 .pe .pr span{font-size:12px;color:var(--ink2);white-space:nowrap}
 .pe .pr button{border:0;background:#EFE8DA;border-radius:8px;height:30px;cursor:pointer}
@@ -186,6 +186,7 @@ dialog::backdrop{background:rgba(30,26,22,.55);backdrop-filter:blur(2px)}
 .kpi.av{background:#F3E8FF;border-color:#D8B4FE}.kpi.av b{color:#7E3AA8}
 #hSum{grid-template-columns:repeat(auto-fit,minmax(78px,1fr))}
 .avres{margin:6px 0 4px}
+.pe .pr select.pu{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 4px;font-size:13px}
 </style>
 </head>
 <body>
@@ -307,6 +308,16 @@ dialog::backdrop{background:rgba(30,26,22,.55);backdrop-filter:blur(2px)}
     <details style="margin-top:14px" id="mCfg">
       <summary class="link" style="list-style:none">⚙︎ Presentaciones, alertas y datos</summary>
       <div style="margin-top:10px">
+        <div class="field"><label>Se mide en</label><select id="eBase">
+          <option value="kg">Peso · g, kg</option>
+          <option value="L">Volumen (líquidos) · ml, L</option>
+          <option value="und">Unidades · und</option>
+          <option value="m">Longitud · cm, m</option>
+          <option value="__otro">Otro empaque…</option>
+        </select></div>
+        <div class="field hidden" id="eOtroW"><label>Nombre del empaque</label><input id="eOtro" placeholder="Ej: Cuñete, Poma"></div>
+        <div class="field hidden" id="eFacW"><label id="eFacLbl"></label><div class="qty"><input id="eFac" type="number" inputmode="decimal" step="any" placeholder="Ej: 1"><select id="eFacU"></select></div>
+          <p class="hint" style="font-size:12px;color:var(--ink2);margin:4px 0 0">Sirve para convertir lo que ya está registrado en las bodegas y en el historial. Si todavía no tiene nada registrado, déjalo vacío.</p></div>
         <div class="field"><label>Presentaciones (cómo llega o sale)</label><div id="ePE"></div></div>
         <div class="field"><label>Niveles de alerta · solo Bodega <span class="bodname"></span></label>
           <div class="row2">
@@ -337,10 +348,10 @@ dialog::backdrop{background:rgba(30,26,22,.55);backdrop-filter:blur(2px)}
     <div class="row2">
       <div class="field"><label>Categoría</label><select id="aCat"></select></div>
       <div class="field"><label>Se mide en</label><select id="aBase">
-        <option value="kg">Kilos (kg · libra · gramo)</option>
-        <option value="L">Litros (L · ml · galón)</option>
-        <option value="und">Unidades</option>
-        <option value="m">Metros</option>
+        <option value="kg">Peso · g, kg</option>
+        <option value="L">Volumen (líquidos) · ml, L</option>
+        <option value="und">Unidades · und</option>
+        <option value="m">Longitud · cm, m</option>
         <option value="__otro">Otro empaque…</option>
       </select></div>
     </div>
@@ -400,13 +411,18 @@ function toast(m, err) { const t = $('#toast'); t.textContent = m; t.className =
 /* ===== UNIDADES Y PRESENTACIONES =====
    El stock siempre se guarda en la unidad base (kg, L, und, m o un empaque).
    Cada presentación dice cuántas unidades base trae: Bulto = 50 kg, Caja = 500 und. */
+// Unidades de medida oficiales (sistema métrico). m:1 = es una medida, no una presentación
 const BUILTIN = {
-  kg: [{ n: 'Kilo', f: 1 }, { n: 'Libra', f: 0.5 }, { n: 'Gramo', f: 0.001 }, { n: 'Arroba', f: 12.5 }],
-  L: [{ n: 'Litro', f: 1 }, { n: 'Mililitro', f: 0.001 }, { n: 'Galón', f: 3.785 }],
-  und: [{ n: 'Unidad', f: 1 }],
-  m: [{ n: 'Metro', f: 1 }]
+  kg: [{ n: 'g', f: 0.001, m: 1, t: 'gramos' }, { n: 'kg', f: 1, m: 1, t: 'kilogramos' }, { n: 'lb', f: 0.5, m: 1, t: 'libras (500 g)' }, { n: '@', f: 12.5, m: 1, t: 'arrobas (12,5 kg)' }],
+  L: [{ n: 'ml', f: 0.001, m: 1, t: 'mililitros' }, { n: 'L', f: 1, m: 1, t: 'litros' }],
+  und: [{ n: 'und', f: 1, m: 1, t: 'unidades' }],
+  m: [{ n: 'cm', f: 0.01, m: 1, t: 'centímetros' }, { n: 'm', f: 1, m: 1, t: 'metros' }]
 };
+const MEAS = new Set(Object.values(BUILTIN).flat().map(o => o.n));
+// nombres usados en versiones anteriores (para leer el historial y pedidos viejos)
+const LEGACY = { Kilo: 'kg', Gramo: 'g', Libra: 'lb', Arroba: '@', Litro: 'L', Mililitro: 'ml', Unidad: 'und', Metro: 'm' };
 const BASE_TXT = { kg: 'kg', L: 'L', und: 'und', m: 'm' };
+const BASE_NOM = { kg: 'peso (g · kg)', L: 'volumen (ml · L)', und: 'unidades', m: 'longitud (cm · m)' };
 const isStd = b => b in BUILTIN;
 const bTxt = b => BASE_TXT[b] || b.toLowerCase();
 function fq(v, b) { // cantidad base legible
@@ -416,14 +432,19 @@ function fq(v, b) { // cantidad base legible
   return fmt(v) + ' ' + bTxt(b);
 }
 const PLU = { 'Galón': 'Galones', 'Cuñete': 'Cuñetes', 'Atado': 'Atados' };
-const plural = (n, q) => { if (Math.abs(q - 1) < 1e-9) return n; const [w, ...r] = n.split(' '); if (PLU[w]) return [PLU[w], ...r].join(' '); return [/[aeiouáéíóú]$/i.test(w) ? w + 's' : w + 'es', ...r].join(' ') };
+const plural = (n, q) => { if (MEAS.has(n) || MEAS.has(LEGACY[n])) return LEGACY[n] || n; if (Math.abs(q - 1) < 1e-9) return n; const SK = ['de', 'del', 'con', 'sin', 'para', 'por', 'kg', 'ml', 'und', 'gr', 'lb', 'oz', 'x'];
+  return n.split(' ').map((w, k) => { if (PLU[w]) return PLU[w]; if (!/^[a-záéíóúñ]+$/i.test(w) || (k > 0 && (w.length < 3 || SK.includes(w.toLowerCase())))) return w; if (/s$/i.test(w)) return w; return /[aeiouáéíóú]$/i.test(w) ? w + 's' : w + 'es' }).join(' ') };
 function opts(i) {
   const base = isStd(i.unidad_base) ? BUILTIN[i.unidad_base] : [{ n: cap(i.unidad_base), f: 1 }];
   const cus = (i.presentaciones || []).filter(p => p.n && +p.f > 0);
   return [...cus.map(p => ({ ...p, c: 1 })), ...base.filter(b => !cus.some(c => c.n.toLowerCase() === b.n.toLowerCase()))];
 }
-const optLbl = (o, i) => !o.c && (Math.abs(o.f - 1) < 1e-9 || o.n === 'Gramo' || o.n === 'Mililitro') ? o.n : `${o.n} (${fq(o.f, i.unidad_base)})`;
-const findOpt = (i, n) => opts(i).find(o => o.n === n) || opts(i).find(o => Math.abs(o.f - 1) < 1e-9) || opts(i)[0];
+function optLbl(o, i) {
+  if (o.m) return `${o.n} — ${o.t}`;
+  if (o.c) { const q = fq(o.f, i.unidad_base); return o.n.toLowerCase().includes(q.toLowerCase()) ? o.n : `${o.n} · ${q}` }
+  return o.n;
+}
+const findOpt = (i, n) => { const os = opts(i); n = LEGACY[n] || n; return os.find(o => o.n === n) || os.find(o => Math.abs(o.f - 1) < 1e-9) || os[0] };
 const principal = i => (i.presentaciones || []).find(p => p.n === i.presentacion_principal);
 function equiv(i, v) { // "20 Bultos + 10 kg · 2.020 lb"
   v = +v || 0; const p = principal(i); let out = [];
@@ -435,8 +456,20 @@ function equiv(i, v) { // "20 Bultos + 10 kg · 2.020 lb"
   if (i.unidad_base === 'kg' && v > 0) out.push(`${fmt(v * 2)} lb`);
   return out.join(' · ');
 }
-const selOpts = (i, sel) => opts(i).map(o => `<option value="${esc(o.n)}" ${o.n === sel ? 'selected' : ''}>${esc(optLbl(o, i))}</option>`).join('');
-const defPres = (i, tipo) => tipo === 'entrada' ? (principal(i)?.n || findOpt(i).n) : findOpt(i).n;
+function selOpts(i, sel) {
+  sel = LEGACY[sel] || sel;
+  const os = opts(i), o1 = o => `<option value="${esc(o.n)}" ${o.n === sel ? 'selected' : ''}>${esc(optLbl(o, i))}</option>`;
+  const med = os.filter(o => o.m), pre = os.filter(o => !o.m).sort((a, b) => b.f - a.f);
+  if (!med.length || !pre.length) return [...med, ...pre].map(o1).join('');
+  return `<optgroup label="Medida">${med.map(o1).join('')}</optgroup><optgroup label="Presentación">${pre.map(o1).join('')}</optgroup>`;
+}
+// Entradas: presentación grande · Salidas y averías: la medida más pequeña (ml, g, und) · Conteo: unidad base
+function defPres(i, tipo) {
+  const os = opts(i), med = os.filter(o => o.m).sort((a, b) => a.f - b.f);
+  if (tipo === 'entrada') return principal(i)?.n || findOpt(i).n;
+  if (resta(tipo) && med.length) return med[0].n;
+  return findOpt(i).n;
+}
 const resta = t => t === 'salida' || t === 'averia';
 const MOTIVOS = ['Vencido', 'Dañado / roto', 'Mal estado', 'Humedad / plaga', 'Contaminado', 'Llegó malo del proveedor', 'Otro'];
 function motivosUI(el, input) {
@@ -515,6 +548,17 @@ const api = {
     if (Object.keys(cat).length) { const { error } = await sb.from('mp_insumos').update(cat).eq('id', id); if (error) throw new Error(error.code === '23505' ? 'Ya existe un insumo con ese nombre' : error.message) }
     if (Object.keys(lvl).length) { const { error } = await sb.from('mp_stock').update(lvl).eq('insumo_id', id).eq('bodega', state.bodega); if (error) throw error }
   },
+  async cambiarUnidad(id, unidad, factor) {
+    if (!sb) {
+      const d = demo.load(), i = d.ins.find(x => x.id === id), old = i.unidad_base; i.unidad_base = unidad;
+      Object.values(d.st).forEach(b => { const r = b[id]; if (r) LVL.forEach(k => r[k] = r6(r[k] * factor)) });
+      d.mov.filter(m => m.insumo_id === id).forEach(m => ['cantidad', 'stock_anterior', 'stock_resultante'].forEach(k => m[k] = r6(m[k] * factor)));
+      Object.entries(d.st).forEach(([b, rows]) => { const r = rows[id]; if (r && r.stock > 0) d.mov.unshift({ id: d.seq++, bodega: b, insumo_id: id, tipo: 'ajuste', cantidad: r.stock, stock_anterior: r.stock, stock_resultante: r.stock, detalle: `Cambio de unidad: ${old} → ${unidad} (1 ${old} = ${factor} ${unidad})`, responsable: state.who, created_at: new Date().toISOString() }) });
+      demo.save(d); return;
+    }
+    const { error } = await sb.rpc('mp_cambiar_unidad', { p_insumo_id: id, p_unidad: unidad, p_factor: factor, p_responsable: state.who || null });
+    if (error) throw new Error(error.message);
+  },
   async guardarPedido(p) {
     p = { ...p, bodega: state.bodega };
     if (!sb) { const d = demo.load(); (d.ped ||= []).unshift({ id: Date.now(), ...p, created_at: new Date().toISOString() }); demo.save(d); return }
@@ -573,25 +617,33 @@ $('#invList').onclick = e => { const it = e.target.closest('.item'); if (it) ope
 function peRender(el, base, list, princ) {
   const bl = isStd(base) ? bTxt(base) : base.toLowerCase() || 'und';
   el.innerHTML = `<div class="pe">
-    <p class="hint">Ej: <b>Bulto</b> = 50 ${isStd(base) && base !== 'kg' ? bl : 'kg'} · <b>Caja</b> = 500 und. ${base === 'kg' ? 'Kilo, libra, gramo y arroba ya vienen incluidos.' : base === 'L' ? 'Litro, ml y galón ya vienen incluidos.' : ''}</p>
-    <div class="rows">${(list.length ? list : [{ n: '', f: '' }]).map(p => peRow(p, bl)).join('')}</div>
+    <p class="hint">${base === 'kg' ? 'Ej: <b>Bulto</b> = 50 kg · <b>Bolsa</b> = 500 g. Las medidas g, kg, lb y @ ya vienen incluidas.' : base === 'L' ? 'Ej: <b>Tarro</b> = 1 L · <b>Garrafa</b> = 3000 ml. Las medidas ml y L ya vienen incluidas.' : base === 'und' ? 'Ej: <b>Caja</b> = 500 und · <b>Paquete</b> = 50 und.' : 'Ej: <b>Caja</b> = 12 ' + esc(bl) + '.'}</p>
+    <div class="rows">${(list.length ? list : [{ n: '', f: '' }]).map(p => peRow(p, base)).join('')}</div>
     <button type="button" class="link" data-add>＋ Agregar presentación</button>
     <div class="field" style="margin:8px 0 0"><label>Mostrar el stock también en</label><select data-pr></select></div>
   </div>`;
   el.dataset.base = base;
   const sync = () => { const ps = peGet(el), sel = el.querySelector('[data-pr]'); let cur = sel.dataset.touched ? sel.value : (sel.value || princ); if (!sel.dataset.touched && !ps.some(p => p.n === cur) && ps.length) cur = ps.reduce((a, b) => b.f > a.f ? b : a).n; el.querySelector('[data-pr]').innerHTML = '<option value="">Solo ' + esc(bl) + '</option>' + ps.map(p => `<option ${p.n === cur ? 'selected' : ''}>${esc(p.n)}</option>`).join(''); el.dispatchEvent(new Event('pechange')) };
   el.onclick = e => {
-    if (e.target.dataset.add != null) { el.querySelector('.rows').insertAdjacentHTML('beforeend', peRow({ n: '', f: '' }, bl)); el.querySelector('.rows .pr:last-child input').focus() }
+    if (e.target.dataset.add != null) { el.querySelector('.rows').insertAdjacentHTML('beforeend', peRow({ n: '', f: '' }, base)); el.querySelector('.rows .pr:last-child input').focus() }
     if (e.target.dataset.del != null) { e.target.closest('.pr').remove(); sync() }
   };
   el.oninput = e => { if (e.target.closest('.pr')) sync() };
+  el.onchange = e => { if (e.target.dataset.u != null) sync() };
   el.querySelector('[data-pr]').onchange = e => { e.target.dataset.touched = 1; el.dispatchEvent(new Event('pechange')) };
   sync();
 }
-const peRow = (p, bl) => `<div class="pr"><input placeholder="Nombre (Bulto, Caja…)" value="${esc(p.n)}" data-n><input type="number" inputmode="decimal" step="any" placeholder="Trae" value="${p.f === '' ? '' : r6(p.f)}" data-f><span>${esc(bl)}</span><button type="button" data-del aria-label="Quitar">✕</button></div>`;
+const SUBU = { kg: [['kg', 1], ['g', 0.001]], L: [['L', 1], ['ml', 0.001]] };
+function peRow(p, base) {
+  const su = SUBU[base];
+  if (!su) return peRow0(p, isStd(base) ? bTxt(base) : (base || 'und').toLowerCase());
+  const f = p.f === '' ? '' : +p.f, u = f !== '' && f < 1 ? su[1] : su[0], v = f === '' ? '' : r6(f / u[1]);
+  return `<div class="pr"><input placeholder="Nombre (Tarro, Bulto…)" value="${esc(p.n)}" data-n><input type="number" inputmode="decimal" step="any" placeholder="Trae" value="${v}" data-f><select data-u class="pu">${su.map(([n, m]) => `<option value="${m}" ${n === u[0] ? 'selected' : ''}>${n}</option>`).join('')}</select><button type="button" data-del aria-label="Quitar">✕</button></div>`;
+}
+const peRow0 = (p, bl) => `<div class="pr"><input placeholder="Nombre (Bulto, Caja…)" value="${esc(p.n)}" data-n><input type="number" inputmode="decimal" step="any" placeholder="Trae" value="${p.f === '' ? '' : r6(p.f)}" data-f><span>${esc(bl)}</span><button type="button" data-del aria-label="Quitar">✕</button></div>`;
 function peGet(el) {
   const seen = new Set();
-  return [...el.querySelectorAll('.pr')].map(r => ({ n: r.querySelector('[data-n]').value.trim().replace(/^\w/, c => c.toUpperCase()), f: parseFloat(r.querySelector('[data-f]').value) }))
+  return [...el.querySelectorAll('.pr')].map(r => ({ n: r.querySelector('[data-n]').value.trim().replace(/^\w/, c => c.toUpperCase()), f: r6(parseFloat(r.querySelector('[data-f]').value) * (+r.querySelector('[data-u]')?.value || 1)) }))
     .filter(p => p.n && p.f > 0 && !seen.has(p.n.toLowerCase()) && seen.add(p.n.toLowerCase()));
 }
 const pePrinc = el => el.querySelector('[data-pr]').value || null;
@@ -623,19 +675,36 @@ function fillThr(selId, i) {
 }
 async function openMov(id) {
   const i = state.ins.find(x => x.id === id); if (!i) return; state.cur = i;
-  $('#mName').textContent = i.nombre; $('#mMeta').textContent = cap(i.categoria) + ' · se mide en ' + bTxt(i.unidad_base);
+  $('#mName').textContent = i.nombre; $('#mMeta').textContent = cap(i.categoria) + ' · se mide en ' + (BASE_NOM[i.unidad_base] || i.unidad_base.toLowerCase());
   $('#mStock').textContent = fq(i.stock, i.unidad_base); $('#mStockSub').textContent = equiv(i, i.stock); $('#mPill').innerHTML = pill(estado(i));
   $('#mQty').value = ''; $('#mDet').value = ''; setMTipo('salida');
   $('#mCfg').open = false; $('#eName').value = i.nombre;
   $('#eCat').innerHTML = cats().map(c => `<option ${c === i.categoria ? 'selected' : ''} value="${esc(c)}">${esc(cap(c))}</option>`).join('');
+  const std = isStd(i.unidad_base); $('#eBase').value = std ? i.unidad_base : '__otro'; $('#eOtro').value = std ? '' : i.unidad_base;
+  $('#eOtroW').classList.toggle('hidden', std); $('#eFacW').classList.add('hidden'); $('#eFac').value = '';
   peRender($('#ePE'), i.unidad_base, i.presentaciones || [], i.presentacion_principal);
   const o = fillThr('#eTP', i); $('#eWarn').value = r6(i.nivel_alerta / o.f); $('#eCrit').value = r6(i.nivel_critico / o.f); $('#eTP').dataset.f = o.f;
   $('#mHist').innerHTML = '<div class="spin" style="margin:14px auto;width:20px;height:20px"></div>';
   $('#dMov').showModal();
   try { const h = await api.historial({ insumo_id: id, limit: 8 }); $('#mHist').innerHTML = h.length ? h.map(mvRow).join('') : '<div class="empty" style="padding:14px">Sin movimientos todavía.</div>' } catch { $('#mHist').innerHTML = '' }
 }
+const eBaseVal = () => $('#eBase').value === '__otro' ? (cap($('#eOtro').value.trim()) || 'und') : $('#eBase').value;
+const eTmp = () => ({ ...state.cur, unidad_base: eBaseVal(), presentaciones: peGet($('#ePE')), presentacion_principal: pePrinc($('#ePE')) });
+function eThrRebuild() { const t = eTmp(), cur = $('#eTP').value; $('#eTP').innerHTML = selOpts(t, opts(t).some(o => o.n === cur) ? cur : (principal(t)?.n || findOpt(t).n)); $('#eTP').dataset.f = findOpt(t, $('#eTP').value).f }
+function eBaseChange() {
+  const i = state.cur, nb = eBaseVal(), changed = nb !== i.unidad_base;
+  $('#eOtroW').classList.toggle('hidden', $('#eBase').value !== '__otro');
+  $('#eFacW').classList.toggle('hidden', !changed);
+  if (changed) {
+    $('#eFacLbl').textContent = `Lo que ya estaba registrado: 1 ${bTxt(i.unidad_base)} equivale a`;
+    const su = SUBU[nb] || [[bTxt(nb), 1]]; $('#eFacU').innerHTML = su.map(([n, m]) => `<option value="${m}">${esc(n)}</option>`).join('');
+  }
+  peRender($('#ePE'), nb, [], null); eThrRebuild();
+}
+$('#eBase').onchange = eBaseChange; $('#eOtro').oninput = eBaseChange;
+$('#ePE').addEventListener('pechange', () => { if (state.cur && $('#dMov').open) eThrRebuild() });
 $('#eTP').onchange = () => { // convierte lo escrito a la nueva presentación
-  const i = state.cur, nf = findOpt(i, $('#eTP').value).f, of = +$('#eTP').dataset.f || 1;
+  const i = eTmp(), nf = findOpt(i, $('#eTP').value).f, of = +$('#eTP').dataset.f || 1;
   ['#eWarn', '#eCrit'].forEach(s => { const v = parseFloat($(s).value); if (!isNaN(v)) $(s).value = r6(v * of / nf) }); $('#eTP').dataset.f = nf;
 };
 $('#mGo').onclick = async () => {
@@ -648,10 +717,20 @@ $('#mGo').onclick = async () => {
   catch (e) { toast(e.message, 1) } finally { $('#mGo').disabled = false }
 };
 $('#eSave').onclick = async () => {
-  const i = state.cur, ps = peGet($('#ePE')), f = findOpt({ ...i, presentaciones: ps }, $('#eTP').value).f;
+  const i = state.cur, t = eTmp(), ps = t.presentaciones, f = findOpt(t, $('#eTP').value).f;
   const w = parseFloat($('#eWarn').value) * f, c = parseFloat($('#eCrit').value) * f;
   if (isNaN(w) || isNaN(c) || c > w) return toast('El nivel rojo debe ser menor o igual al amarillo', 1);
+  const baseChanged = t.unidad_base !== i.unidad_base;
+  let fac = 1;
+  if (baseChanged) {
+    const v = parseFloat($('#eFac').value);
+    if (isNaN(v)) { if (+i.stock > 0) return toast(`Escribe a cuánto equivale 1 ${bTxt(i.unidad_base)} (hay ${fq(i.stock, i.unidad_base)} registrados)`, 1) }
+    else if (v <= 0) return toast('La equivalencia debe ser mayor que cero', 1);
+    else fac = r6(v * (+$('#eFacU').value || 1));
+    if (!confirm(`¿Cambiar "${i.nombre}" de ${bTxt(i.unidad_base)} a ${bTxt(t.unidad_base)}?` + (fac !== 1 || +i.stock > 0 ? `\n1 ${bTxt(i.unidad_base)} = ${fq(fac, t.unidad_base)}. Se convierte lo registrado en todas las bodegas.` : ''))) return;
+  }
   try {
+    if (baseChanged) await api.cambiarUnidad(i.id, t.unidad_base, fac);
     await api.editar(i.id, { presentaciones: ps, presentacion_principal: pePrinc($('#ePE')), nivel_alerta: r6(w), nivel_critico: r6(c), nombre: $('#eName').value.trim().toUpperCase() || i.nombre, categoria: $('#eCat').value });
     $('#dMov').close(); toast('Cambios guardados ✓'); refresh();
   } catch (e) { toast(e.message, 1) }
@@ -668,7 +747,7 @@ function fillCatSelects() {
   const cur = $('#bCat').value;
   $('#bCat').innerHTML = '<option value="">Todas</option>' + c.map(x => `<option value="${esc(x)}">${esc(cap(x))}</option>`).join(''); $('#bCat').value = cur;
 }
-const aBase = () => $('#aBase').value === '__otro' ? ($('#aOtro').value.trim() || 'Unidad') : $('#aBase').value;
+const aBase = () => $('#aBase').value === '__otro' ? ($('#aOtro').value.trim() || 'und') : $('#aBase').value;
 function aSync() {
   const tmp = { unidad_base: aBase(), presentaciones: peGet($('#aPE')), presentacion_principal: pePrinc($('#aPE')) };
   const p = principal(tmp)?.n;
@@ -763,7 +842,7 @@ function sugerido(i) { // lo necesario para quedar al doble del nivel amarillo, 
   return { v: Math.max(1, Math.ceil(falta / o.f - 1e-9)), p: o.n };
 }
 // En el pedido se puede pedir en cualquier presentación, aunque no esté configurada en el insumo
-const PED_COMUNES = ['Bulto', 'Arroba', 'Caja', 'Paquete', 'Paca', 'Bolsa', 'Rollo', 'Lata', 'Frasco', 'Galón', 'Garrafa', 'Cuñete', 'Poma', 'Tarro', 'Fajo', 'Atado', 'Docena', 'Kilo', 'Libra', 'Litro', 'Unidad'];
+const PED_COMUNES = ['Bulto', 'Arroba', 'Caja', 'Paquete', 'Paca', 'Bolsa', 'Rollo', 'Lata', 'Frasco', 'Galón', 'Garrafa', 'Cuñete', 'Poma', 'Tarro', 'Fajo', 'Atado', 'Docena'];
 function pedOpts(i, sel) {
   const mine = opts(i), have = new Set(mine.map(o => o.n.toLowerCase()));
   const extra = [...PED_COMUNES, ...(sel && !have.has(sel.toLowerCase()) && !PED_COMUNES.includes(sel) ? [sel] : [])].filter(n => !have.has(n.toLowerCase()));
@@ -878,8 +957,9 @@ $('#pedEnv').onclick = async e => {
 const tipoTxt = { salida: 'Salida', entrada: 'Entrada', averia: 'Avería', ajuste: 'Conteo', alta: 'Nuevo' };
 function presTxt(m) { // "10 Bultos" cuando se registró en una presentación distinta a la base
   const i = m.mp_insumos || {}; if (!m.presentacion || m.cantidad_presentacion == null) return '';
-  const o = i.unidad_base ? findOpt(i, m.presentacion) : null; if (o && Math.abs(o.f - 1) < 1e-9 && !o.c) return '';
-  return `${fmt(m.cantidad_presentacion)} ${plural(m.presentacion, +m.cantidad_presentacion)}`;
+  const n = LEGACY[m.presentacion] || m.presentacion;
+  if (MEAS.has(n)) return n === i.unidad_base ? '' : `${fmt(m.cantidad_presentacion)} ${n}`;
+  return `${fmt(m.cantidad_presentacion)} ${plural(n, +m.cantidad_presentacion)}`;
 }
 function mvRow(m) {
   const i = m.mp_insumos || {}, b = i.unidad_base || 'und', sg = resta(m.tipo) ? '−' : m.tipo === 'entrada' ? '+' : '=';
