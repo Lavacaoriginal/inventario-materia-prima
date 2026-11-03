@@ -187,6 +187,13 @@ dialog::backdrop{background:rgba(30,26,22,.55);backdrop-filter:blur(2px)}
 #hSum{grid-template-columns:repeat(auto-fit,minmax(78px,1fr))}
 .avres{margin:6px 0 4px}
 .pe .pr select.pu{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 4px;font-size:13px}
+.docprev{display:flex;gap:12px;align-items:center;background:var(--bg);border-radius:14px;padding:12px;margin-bottom:12px}
+.docprev .ic{width:46px;height:56px;border-radius:8px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;font-weight:800;font-size:11px;color:#C62828;flex:none}
+.docprev b{display:block;font-size:14px;word-break:break-all}.docprev span{font-size:12px;color:var(--ink2)}
+.ent{padding:12px 14px;border-top:1px solid var(--line)}.ent:first-child{border-top:0}
+.ent .h{display:flex;justify-content:space-between;gap:8px;align-items:baseline}.ent .h b{font-size:15px}.ent .h span{font-size:12px;color:var(--ink2);white-space:nowrap}
+.ent .who{font-size:12.5px;color:var(--ink2);margin-top:3px}
+.ent ul{margin:6px 0 0;padding-left:18px;font-size:13px}
 </style>
 </head>
 <body>
@@ -221,15 +228,19 @@ dialog::backdrop{background:rgba(30,26,22,.55);backdrop-filter:blur(2px)}
 
   <section id="v-sal" class="hidden">
     <h2 class="ptitle">Movimiento del día <span class="bodlbl"></span></h2>
-    <p class="psub">Escribe la cantidad y elige en qué viene: bulto, kilo, libra, caja, unidad… El sistema lo convierte solo.</p>
+    <p class="psub">Escribe la cantidad y elige la medida (g, kg, ml, L, und) o la presentación. Las salidas generan un comprobante de entrega para imprimir o compartir.</p>
     <div class="seg" id="batchSeg">
       <button class="on salida" data-t="salida">Salidas</button>
       <button data-t="entrada">Entradas</button>
       <button data-t="averia">⚠ Averías</button>
     </div>
     <div class="panel">
+      <div class="row2" id="bEntW">
+        <div class="field"><label>Punto que recibe</label><select id="bPunto"></select></div>
+        <div class="field"><label>Quién recibe</label><input id="bRecibe" placeholder="Nombre completo" autocomplete="off"></div>
+      </div>
       <div class="row2">
-        <div class="field"><label id="detLbl">Destino / uso</label><input id="bDet" placeholder="Ej: Producción yogurt, Km 18…"><div class="motivos hidden" id="bMot" style="margin:6px 0 0"></div></div>
+        <div class="field"><label id="detLbl">Observación (opcional)</label><input id="bDet" placeholder="Ej: para producción de yogurt"><div class="motivos hidden" id="bMot" style="margin:6px 0 0"></div></div>
         <div class="field"><label>Categoría</label><select id="bCat"></select></div>
       </div>
       <label class="search" style="margin-top:2px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity=".5"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="bq" placeholder="Filtrar insumos…" autocomplete="off"></label>
@@ -256,14 +267,15 @@ dialog::backdrop{background:rgba(30,26,22,.55);backdrop-filter:blur(2px)}
     </div>
     <div id="pedEnv" class="hidden"></div>
     <div class="sticky" id="pedBar" style="gap:8px">
-      <button class="btn p" id="pedWa" disabled style="flex:1"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .3-3.3-.7-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2.1 1-2.4c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.4 1.8 2.2 1.2 1.1 2.3 1.4 2.6 1.6.3.1.5.1.7-.1l.9-1.1c.2-.3.4-.2.7-.1l2 1c.3.1.5.2.5.3.1.1.1.6-.1 1.2z"/></svg><span id="pedWaTxt">Pedido vacío</span></button>
-      <button class="btn d" id="pedCopy" disabled>Copiar</button>
+      <button class="btn p" id="pedPdf" disabled style="flex:1">📄 <span id="pedPdfTxt">Escribe cantidades para pedir</span></button>
+      <button class="btn d" id="pedWa" disabled title="Enviar como mensaje de texto">💬 Texto</button>
     </div>
   </section>
 
   <section id="v-his" class="hidden hist">
     <h2 class="ptitle">Historial <span class="bodlbl"></span></h2>
     <p class="psub">Cada movimiento queda con fecha, hora, responsable y la presentación en que se registró.</p>
+    <div class="seg" id="hSeg"><button class="on" data-t="mov">Movimientos</button><button data-t="ent">Entregas</button></div>
     <div class="panel">
       <div class="filters">
         <div class="field"><label>Desde</label><input type="date" id="hFrom"></div>
@@ -278,6 +290,7 @@ dialog::backdrop{background:rgba(30,26,22,.55);backdrop-filter:blur(2px)}
       </div>
     </div>
     <div id="hSum" class="kpis hidden"></div>
+    <div id="hEnt" class="hidden"></div>
     <div id="hList"></div>
   </section>
 </main>
@@ -361,6 +374,19 @@ dialog::backdrop{background:rgba(30,26,22,.55);backdrop-filter:blur(2px)}
     <div class="field"><label>Stock inicial</label><div class="qty"><input id="aStock" type="number" inputmode="decimal" value="0" step="any"><select id="aStockP"></select></div></div>
     <div class="field"><label>🟡 Amarillo ≤ · 🔴 Rojo ≤</label><div class="qty"><input id="aWarn" type="number" step="any" placeholder="2"><input id="aCrit" type="number" step="any" placeholder="1"><select id="aTP"></select></div></div>
     <button class="btn p" id="aGo" style="width:100%">Agregar insumo</button>
+  </div>
+</dialog>
+
+<dialog id="dDoc">
+  <div class="dh"><div><h2 id="docT">Documento listo</h2><p id="docD"></p></div><button class="x" data-close>✕</button></div>
+  <div class="db">
+    <div class="docprev" id="docP"></div>
+    <button class="btn p" id="docShare" style="width:100%;background:#1FA855">📤 Compartir (WhatsApp)</button>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn d" id="docOpen" style="flex:1">🖨️ Ver / Imprimir</button>
+      <button class="btn g" id="docDown" style="flex:1">⬇️ Descargar</button>
+    </div>
+    <p style="font-size:12px;color:var(--ink2);margin:10px 0 0">En “Compartir” elige WhatsApp y el chat o grupo. Para imprimir, abre el PDF y usa la opción Imprimir de tu celular o computador.</p>
   </div>
 </dialog>
 
@@ -561,8 +587,19 @@ const api = {
   },
   async guardarPedido(p) {
     p = { ...p, bodega: state.bodega };
-    if (!sb) { const d = demo.load(); (d.ped ||= []).unshift({ id: Date.now(), ...p, created_at: new Date().toISOString() }); demo.save(d); return }
-    const { error } = await sb.from('mp_pedidos').insert(p); if (error) throw error;
+    if (!sb) { const d = demo.load(); d.pseq = (d.pseq || 0) + 1; const r = { id: d.pseq, ...p, created_at: new Date().toISOString() }; (d.ped ||= []).unshift(r); demo.save(d); return r }
+    const { data, error } = await sb.from('mp_pedidos').insert(p).select('*').single(); if (error) throw error; return data;
+  },
+  async guardarEntrega(e) {
+    e = { ...e, bodega: state.bodega };
+    if (!sb) { const d = demo.load(); d.eseq = (d.eseq || 0) + 1; const r = { id: d.eseq, ...e, created_at: new Date().toISOString() }; (d.ent ||= []).unshift(r); demo.save(d); return r }
+    const { data, error } = await sb.from('mp_entregas').insert(e).select('*').single(); if (error) throw new Error(error.message.includes('mp_entregas') ? 'Falta correr entregas.sql en Supabase' : error.message); return data;
+  },
+  async entregas({ from, to }) {
+    if (!sb) return (demo.load().ent || []).filter(e => e.bodega === state.bodega && (!from || e.created_at >= from) && (!to || e.created_at < to));
+    let q = sb.from('mp_entregas').select('*').eq('bodega', state.bodega).order('created_at', { ascending: false }).limit(300);
+    if (from) q = q.gte('created_at', from); if (to) q = q.lt('created_at', to);
+    const { data, error } = await q; if (error) throw new Error(error.message.includes('mp_entregas') ? 'Falta correr entregas.sql en Supabase' : error.message); return data;
   },
   async pedidos() {
     if (!sb) return (demo.load().ped || []).filter(p => p.bodega === state.bodega);
@@ -810,8 +847,9 @@ $('#bq').oninput = renderBatch; $('#bCat').onchange = renderBatch;
 $('#batchSeg').onclick = e => { const b = e.target.closest('button'); if (!b) return; state.bTipo = b.dataset.t;
   $$('#batchSeg button').forEach(x => { x.classList.toggle('on', x === b); x.classList.remove('salida', 'entrada', 'averia'); if (x === b) x.classList.add(b.dataset.t) });
   const t = state.bTipo;
-  $('#detLbl').textContent = t === 'salida' ? 'Destino / uso' : t === 'entrada' ? 'Proveedor / factura' : 'Motivo de la avería (obligatorio)';
-  $('#bDet').placeholder = t === 'salida' ? 'Ej: Producción yogurt, Km 18…' : t === 'entrada' ? 'Ej: Proveedor, # factura…' : 'Elige un motivo o escríbelo';
+  $('#bEntW').classList.toggle('hidden', t !== 'salida');
+  $('#detLbl').textContent = t === 'salida' ? 'Observación (opcional)' : t === 'entrada' ? 'Proveedor / factura' : 'Motivo de la avería (obligatorio)';
+  $('#bDet').placeholder = t === 'salida' ? 'Ej: para producción de yogurt' : t === 'entrada' ? 'Ej: Proveedor, # factura…' : 'Elige un motivo o escríbelo';
   $('#bDet').value = ''; $('#bMot').classList.toggle('hidden', t !== 'averia'); if (t === 'averia') motivosUI($('#bMot'), $('#bDet'));
   renderBatch() };
 $('#batchGo').onclick = async () => {
@@ -819,12 +857,204 @@ $('#batchGo').onclick = async () => {
   const items = Object.entries(state.batch).map(([id, b]) => [state.ins.find(i => i.id === +id), b]);
   if (resta(state.bTipo) && items.some(([i, b]) => bBase(i, b) > +i.stock + 1e-6)) return toast('Hay cantidades mayores que el stock (en rojo)', 1);
   if (state.bTipo === 'averia' && !$('#bDet').value.trim()) return toast('Escribe o elige el motivo de la avería', 1);
+  const esSal = state.bTipo === 'salida', punto = $('#bPunto').value, recibe = $('#bRecibe').value.trim(), obs = $('#bDet').value.trim();
+  if (esSal && (!punto || punto === '__otro')) return toast('Elige el punto que recibe', 1);
+  if (esSal && !recibe) return toast('Escribe el nombre de quien recibe', 1);
+  if (esSal) loadPdfLib().catch(() => {});
   $('#batchGo').disabled = true; $('#batchGo').textContent = 'Registrando…';
-  let ok = 0, fail = [];
-  for (const [i, b] of items) { try { await api.mover(i.id, state.bTipo, bBase(i, b), b.p, parseFloat(b.v), $('#bDet').value.trim()); ok++; delete state.batch[i.id] } catch { fail.push(i.nombre) } }
+  let ok = 0, fail = [], hechos = [];
+  const det = esSal ? `-> ${punto} · recibe ${recibe}${obs ? ' · ' + obs : ''}` : obs;
+  for (const [i, b] of items) { try { await api.mover(i.id, state.bTipo, bBase(i, b), b.p, parseFloat(b.v), det); ok++; hechos.push({ insumo_id: i.id, nombre: i.nombre, cat: i.categoria, cantidad: parseFloat(b.v), presentacion: b.p, base: bBase(i, b), unidad_base: i.unidad_base }); delete state.batch[i.id] } catch { fail.push(i.nombre) } }
   toast(fail.length ? `${ok} registradas · fallaron: ${fail.join(', ')}` : `${ok} movimientos registrados ✓`, !!fail.length);
   await refresh();
+  if (esSal && hechos.length) {
+    try {
+      const e = await api.guardarEntrega({ punto, entrega: state.who, recibe, nota: obs || null, items: hechos });
+      $('#bRecibe').value = ''; $('#bDet').value = '';
+      const blob = await entregaPDF(e);
+      showDoc(blob, docName('E', e.id, e.bodega), `Comprobante ${nDoc('E', e.id)}`, `${e.punto} · recibe ${e.recibe} · ${hechos.length} insumos. Queda en Historial → Entregas.`);
+    } catch (err) { toast('Las salidas quedaron registradas, pero no se generó el comprobante: ' + err.message, 1) }
+  }
 };
+
+/* ===== PUNTOS DE ENTREGA ===== */
+const PUNTOS = {
+  'Valle': ['Producción', 'Km 18', 'Km 25', 'El Peñón', 'Colseguros'],
+  'Quindío': ['Producción', 'Autopista del Café', 'Boquia', 'Tebaida']
+};
+function fillPuntos() {
+  const ps = PUNTOS[state.bodega] || ['Producción'], cur = $('#bPunto').value;
+  $('#bPunto').innerHTML = '<option value="">Elige el punto…</option>' + ps.map(p => `<option>${esc(p)}</option>`).join('') + '<option value="__otro">Otro…</option>';
+  if ([...$('#bPunto').options].some(o => o.value === cur)) $('#bPunto').value = cur;
+}
+$('#bPunto').onchange = () => {
+  if ($('#bPunto').value !== '__otro') return;
+  const n = (prompt('¿A qué punto o área se entrega?') || '').trim();
+  if (!n) { $('#bPunto').value = ''; return }
+  const o = document.createElement('option'); o.textContent = n; $('#bPunto').insertBefore(o, $('#bPunto').lastElementChild); $('#bPunto').value = n;
+};
+
+/* ===== DOCUMENTOS PDF (pedido y comprobante de entrega) ===== */
+const EMPRESA = { nombre: 'LA VACA ORIGINAL', nit: 'NIT 901.519.826-4', area: 'Inventario de Materia Prima' };
+const PDFLIB_URL = 'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
+let _pdfLib = null, _logo;
+function loadPdfLib() {
+  if (window.PDFLib) return Promise.resolve(window.PDFLib);
+  return _pdfLib ||= new Promise((ok, ko) => { const sc = document.createElement('script'); sc.src = PDFLIB_URL; sc.onload = () => ok(window.PDFLib); sc.onerror = () => { _pdfLib = null; ko(new Error('No se pudo cargar el generador de PDF. Revisa el internet.')) }; document.head.appendChild(sc) });
+}
+async function logoBytes() {
+  if (_logo !== undefined) return _logo;
+  try { const r = await fetch('icon-192.png'); _logo = r.ok ? new Uint8Array(await r.arrayBuffer()) : null } catch { _logo = null }
+  return _logo;
+}
+// Las fuentes estándar del PDF solo aceptan caracteres latinos: se limpian emojis y símbolos raros
+const WIN = '€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ';
+const pdfTxt = t => String(t ?? '').replace(/→/g, '->').replace(/\s+/g, ' ').split('').filter(c => c.charCodeAt(0) < 256 || WIN.includes(c)).join('').trim();
+const nDoc = (pre, id) => `${pre}-${String(id).padStart(6, '0')}`;
+const fechaLarga = d => { const x = new Date(d); return x.toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' }) + ' · ' + x.toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' }) };
+
+// Arma un PDF tamaño carta: encabezado con logo y NIT, datos, tabla (con salto de página), resumen, firmas y pie
+async function buildPDF({ title, number, meta, columns, rows, colors, summary, signatures, footerNote }) {
+  const { PDFDocument, StandardFonts, rgb } = await loadPdfLib();
+  const doc = await PDFDocument.create();
+  doc.setTitle(`${title} ${number}`); doc.setAuthor('La Vaca Original'); doc.setCreator('Inventario Materia Prima');
+  const F = await doc.embedFont(StandardFonts.Helvetica), FB = await doc.embedFont(StandardFonts.HelveticaBold);
+  const lb = await logoBytes(); let logo = null; if (lb) { try { logo = await doc.embedPng(lb) } catch {} }
+  const W = 612, H = 792, M = 40, CW = W - 2 * M;
+  const INK = rgb(.08, .08, .08), GRAY = rgb(.38, .38, .38), LINE = rgb(.86, .86, .84), HEAD = rgb(.12, .1, .09), ZEB = rgb(.965, .965, .955), WHITE = rgb(1, 1, 1);
+  const COL = { red: rgb(.7, .14, .1), yellow: rgb(.72, .47, .12), green: rgb(.18, .48, .29) };
+  let page, y;
+  const tw = (t, f, sz) => f.widthOfTextAtSize(t, sz);
+  const wrap = (t, f, sz, w) => {
+    const out = []; let line = '';
+    for (const word of pdfTxt(t).split(' ')) {
+      const tryL = line ? line + ' ' + word : word;
+      if (tw(tryL, f, sz) <= w) { line = tryL; continue }
+      if (line) out.push(line);
+      line = word;
+      while (tw(line, f, sz) > w && line.length > 1) { let k = line.length; while (k > 1 && tw(line.slice(0, k), f, sz) > w) k--; out.push(line.slice(0, k)); line = line.slice(k) }
+    }
+    if (line) out.push(line); return out.length ? out : [''];
+  };
+  const text = (t, x, yy, f = F, sz = 9, color = INK) => page.drawText(pdfTxt(t), { x, y: yy, font: f, size: sz, color });
+  const ws = columns.map(c => c.w * CW);
+  function tableHead() {
+    const hh = 20; page.drawRectangle({ x: M, y: y - hh, width: CW, height: hh, color: HEAD });
+    let x = M; columns.forEach((c, k) => { const t = pdfTxt(c.h); const tx = c.align === 'right' ? x + ws[k] - 6 - tw(t, FB, 8) : x + 6; text(t, tx, y - 13.5, FB, 8, WHITE); x += ws[k] });
+    y -= hh;
+  }
+  function newPage(first) {
+    page = doc.addPage([W, H]); y = H - M;
+    if (logo) page.drawImage(logo, { x: M, y: y - 56, width: 56, height: 56 });
+    const lx = M + (logo ? 66 : 0);
+    text(EMPRESA.nombre, lx, y - 16, FB, 15); text(EMPRESA.nit, lx, y - 31, F, 9.5, GRAY); text(EMPRESA.area, lx, y - 44, F, 9.5, GRAY);
+    const t1 = pdfTxt(title.toUpperCase()); text(t1, W - M - tw(t1, FB, 11), y - 16, FB, 11);
+    const nn = pdfTxt(number); text(nn, W - M - tw(nn, FB, 18), y - 38, FB, 18, rgb(.78, .16, .16));
+    y -= 66; page.drawRectangle({ x: M, y, width: CW, height: 2.2, color: HEAD }); y -= 14;
+    if (first && meta?.length) {
+      const colW = CW / 2;
+      for (let k = 0; k < meta.length; k += 2) {
+        const pair = meta.slice(k, k + 2).map(([lab, val]) => [lab, wrap(val || '—', FB, 10, colW - 14)]);
+        const hgt = Math.max(...pair.map(([, ls]) => ls.length));
+        pair.forEach(([lab, ls], j) => { const x = M + j * colW; text(lab.toUpperCase(), x, y - 8, F, 7.5, GRAY); ls.forEach((l, i) => text(l, x, y - 21 - i * 12, FB, 10)) });
+        y -= 16 + hgt * 12 + 8;
+      }
+      page.drawRectangle({ x: M, y, width: CW, height: .8, color: LINE }); y -= 12;
+    }
+    tableHead();
+  }
+  newPage(true);
+  rows.forEach((r, ri) => {
+    const cells = r.map((v, k) => wrap(v, columns[k].bold ? FB : F, 9, ws[k] - 12));
+    const h = Math.max(...cells.map(c => c.length)) * 11.5 + 9;
+    if (y - h < M + 40) newPage(false);
+    if (ri % 2) page.drawRectangle({ x: M, y: y - h, width: CW, height: h, color: ZEB });
+    let x = M;
+    cells.forEach((ls, k) => {
+      const c = columns[k], f = c.bold ? FB : F, color = (colors?.[ri]?.[k] && COL[colors[ri][k]]) || INK;
+      ls.forEach((l, j) => { const tx = c.align === 'right' ? x + ws[k] - 6 - tw(l, f, 9) : x + 6; text(l, tx, y - 14 - j * 11.5, f, 9, color) });
+      x += ws[k];
+    });
+    y -= h; page.drawRectangle({ x: M, y, width: CW, height: .6, color: LINE });
+  });
+  if (summary) { const ls = wrap(summary, F, 9, CW); if (y - 18 - ls.length * 12 < M + 30) newPage(false); y -= 18; ls.forEach(l => { text(l, M, y, F, 9, GRAY); y -= 12 }) }
+  if (signatures?.length) {
+    if (y < M + 120) newPage(false);
+    y -= 70; const gap = 36, sw = (CW - gap * (signatures.length - 1)) / signatures.length;
+    signatures.forEach(([lab, name], k) => {
+      const x = M + k * (sw + gap);
+      page.drawRectangle({ x, y, width: sw, height: .9, color: INK });
+      text(lab, x, y - 13, FB, 9); text('Nombre: ' + (name || ''), x, y - 26, F, 8.5, GRAY); text('C.C.:', x, y - 38, F, 8.5, GRAY);
+    });
+  }
+  const pages = doc.getPages(), gen = 'Generado el ' + fechaLarga(Date.now());
+  pages.forEach((pg, k) => {
+    page = pg;
+    page.drawRectangle({ x: M, y: M - 6, width: CW, height: .6, color: LINE });
+    text(gen + (footerNote ? ' · ' + footerNote : ''), M, M - 18, F, 7.5, GRAY);
+    const pn = `Página ${k + 1} de ${pages.length}`; text(pn, W - M - tw(pn, F, 7.5), M - 18, F, 7.5, GRAY);
+  });
+  return new Blob([await doc.save()], { type: 'application/pdf' });
+}
+
+// Ventana para compartir (WhatsApp), ver/imprimir o descargar el PDF
+let _doc = null;
+function showDoc(blob, filename, titulo, desc) {
+  _doc = { blob, filename, titulo, file: new File([blob], filename, { type: 'application/pdf' }) };
+  $('#docT').textContent = titulo; $('#docD').textContent = desc || '';
+  $('#docP').innerHTML = `<div class="ic">PDF</div><div><b>${esc(filename)}</b><span>${Math.max(1, Math.round(blob.size / 1024))} KB · listo para compartir o imprimir</span></div>`;
+  let can = false; try { can = !!(navigator.canShare && navigator.canShare({ files: [_doc.file] })) } catch {}
+  $('#docShare').classList.toggle('hidden', !can);
+  $('#dDoc').showModal();
+}
+$('#docShare').onclick = async () => { try { await navigator.share({ files: [_doc.file], title: _doc.titulo, text: _doc.titulo }) } catch (e) { if (e.name !== 'AbortError') toast('No se pudo compartir: usa Descargar y adjúntalo en WhatsApp', 1) } };
+$('#docOpen').onclick = () => { const u = URL.createObjectURL(_doc.blob); const w = window.open(u, '_blank'); if (!w) location.href = u; setTimeout(() => URL.revokeObjectURL(u), 120000) };
+$('#docDown').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(_doc.blob); a.download = _doc.filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 120000) };
+async function withDoc(btn, fn, after) { const t = btn.innerHTML; btn.disabled = true; btn.innerHTML = 'Generando PDF…'; try { await fn() } catch (e) { toast(e.message, 1) } finally { btn.disabled = false; btn.innerHTML = t; after?.() } }
+
+// "10 Bultos (500 kg)" · "500 g"
+function qtyTxt(cant, pres, f, base) {
+  const n = LEGACY[pres] || pres;
+  if (MEAS.has(n)) return `${fmt(cant)} ${n}`;
+  return `${fmt(cant)} ${plural(n, cant)}` + (f ? ` (${fq(cant * f, base)})` : '');
+}
+// lo disponible expresado en la misma presentación del pedido: "2 Bultos (100 kg)"
+function stockTxt(stock, pres, f, base) {
+  const n = LEGACY[pres] || pres;
+  if (!f || MEAS.has(n) || !(stock > 0)) return fq(stock, base);
+  const k = Math.round(stock / f * 100) / 100; return `${fmt(k)} ${plural(n, k)} (${fq(stock, base)})`;
+}
+const estTxt = x => x.critico == null ? ['', null] : +x.stock <= +x.critico ? ['Crítico', 'red'] : +x.stock <= +x.alerta ? ['Por agotarse', 'yellow'] : ['Suficiente', 'green'];
+async function pedidoPDF(p) {
+  const items = [...p.items].sort((a, b) => (a.cat || '').localeCompare(b.cat || '') || a.nombre.localeCompare(b.nombre));
+  const rows = [], colors = [];
+  items.forEach((x, k) => {
+    const [et, ec] = estTxt(x), f = x.f || null;
+    rows.push([String(k + 1), x.nombre, cap(x.cat || ''), stockTxt(+x.stock, x.presentacion, f, x.unidad_base), qtyTxt(+x.cantidad, x.presentacion, f, x.unidad_base), f ? fq(+x.stock + x.cantidad * f, x.unidad_base) : '—', et]);
+    colors.push([0, 0, 0, 0, 0, 0, ec]);
+  });
+  const crit = items.filter(x => estTxt(x)[1] === 'red').length;
+  return buildPDF({
+    title: 'Pedido de materia prima', number: nDoc('P', p.id),
+    meta: [['Bodega', p.bodega], ['Fecha y hora', fechaLarga(p.created_at)], ['Solicita', p.responsable], ['Proveedor / nota', p.nota || '—']],
+    columns: [{ h: '#', w: .05 }, { h: 'Producto', w: .24, bold: 1 }, { h: 'Categoría', w: .13 }, { h: 'Disponible', w: .17 }, { h: 'Pedido', w: .17, bold: 1 }, { h: 'Quedaría', w: .12 }, { h: 'Estado hoy', w: .12 }],
+    rows, colors,
+    summary: `Total: ${items.length} producto${items.length > 1 ? 's' : ''}${crit ? `, ${crit} en estado crítico` : ''}. "Disponible" es lo que había en la bodega al momento de hacer el pedido y "Quedaría" es lo que habrá cuando llegue.`,
+    signatures: [['Solicitado por', p.responsable], ['Aprobado por', '']], footerNote: 'Documento de control interno'
+  });
+}
+async function entregaPDF(e) {
+  const rows = e.items.map((x, k) => [String(k + 1), x.nombre, cap(x.cat || ''), qtyTxt(+x.cantidad, x.presentacion, null, x.unidad_base), fq(+x.base, x.unidad_base)]);
+  return buildPDF({
+    title: 'Comprobante de entrega', number: nDoc('E', e.id),
+    meta: [['Bodega que entrega', e.bodega], ['Punto que recibe', e.punto], ['Fecha y hora', fechaLarga(e.created_at)], ['Observación', e.nota || '—'], ['Entrega (responsable)', e.entrega], ['Recibe', e.recibe]],
+    columns: [{ h: '#', w: .06 }, { h: 'Insumo', w: .38, bold: 1 }, { h: 'Categoría', w: .2 }, { h: 'Cantidad entregada', w: .2, bold: 1 }, { h: 'Equivale a', w: .16, align: 'right' }],
+    rows,
+    summary: `Total: ${e.items.length} insumo${e.items.length > 1 ? 's' : ''}. Quien recibe declara que recibió los insumos en buen estado y en las cantidades indicadas.`,
+    signatures: [['Entregó', e.entrega], ['Recibió', e.recibe]], footerNote: 'Documento de control interno, no es factura de venta'
+  });
+}
+const docName = (pre, id, b) => `${pre === 'P' ? 'Pedido' : 'Entrega'}_${nDoc(pre, id)}_${(b || '').normalize('NFD').replace(/[^\w]/g, '')}.pdf`;
 
 /* ===== PEDIDO ===== */
 // state.ped = { [insumo_id]: { v, p, x } }  x = agregado a mano (se muestra aunque esté en verde)
@@ -867,8 +1097,8 @@ function renderPed() {
 }
 function updPedBar() {
   const n = pedCount();
-  $('#pedWa').disabled = $('#pedCopy').disabled = !n;
-  $('#pedWaTxt').textContent = n ? `Enviar pedido (${n}) por WhatsApp` : 'Escribe cantidades para pedir';
+  $('#pedWa').disabled = $('#pedPdf').disabled = !n;
+  const pt = $('#pedPdfTxt'); if (pt) pt.textContent = n ? `Generar pedido PDF (${n})` : 'Escribe cantidades para pedir';
   const b = $('#pedBadge'), c = state.ins.filter(i => estado(i) === 'c').length;
   b.textContent = n || c; b.classList.toggle('hidden', !(n || c)); b.style.background = n ? 'var(--brand)' : 'var(--bad)';
 }
@@ -919,7 +1149,8 @@ function pedTxt(items, nota, fecha, bod) {
   const body = Object.entries(g).map(([c, xs]) => `*${cap(c)}*\n` + xs.map(x => `• ${x.nombre}: *${fmt(x.cantidad)} ${plural(x.presentacion, x.cantidad)}*`).join('\n')).join('\n\n');
   return `🐄 *LA VACA ORIGINAL*\n*Pedido de materia prima · Bodega ${bod || state.bodega}*\n${f.charAt(0).toUpperCase() + f.slice(1)}${nota ? '\n📝 ' + nota : ''}\n\n${body}\n\nTotal: ${items.length} producto${items.length > 1 ? 's' : ''}\nPide: ${state.who || '—'}`;
 }
-const pedSnapshot = () => pedItemsSel().map(({ i, v, p }) => ({ insumo_id: i.id, nombre: i.nombre, cat: i.categoria, cantidad: v, presentacion: p, stock: +i.stock, unidad_base: i.unidad_base }));
+const exactF = (i, p) => { const o = opts(i).find(o => o.n === (LEGACY[p] || p)); return o ? o.f : null };
+const pedSnapshot = () => pedItemsSel().map(({ i, v, p }) => ({ insumo_id: i.id, nombre: i.nombre, cat: i.categoria, cantidad: v, presentacion: p, f: exactF(i, p), stock: +i.stock, alerta: +i.nivel_alerta, critico: +i.nivel_critico, unidad_base: i.unidad_base }));
 async function pedEnviar(via) {
   if (!needWho()) return;
   const items = pedSnapshot(); if (!items.length) return;
@@ -931,7 +1162,15 @@ async function pedEnviar(via) {
   toast(via === 'wa' ? 'Pedido enviado y guardado ✓' : 'Pedido copiado y guardado ✓');
 }
 $('#pedWa').onclick = () => pedEnviar('wa');
-$('#pedCopy').onclick = () => pedEnviar('copy');
+$('#pedPdf').onclick = () => withDoc($('#pedPdf'), async () => {
+  if (!needWho()) return;
+  const items = pedSnapshot(); if (!items.length) return;
+  await loadPdfLib();
+  const nota = $('#pedNota').value.trim(), p = await api.guardarPedido({ items, nota, responsable: state.who });
+  const blob = await pedidoPDF(p);
+  state.ped = {}; savePed(); $('#pedNota').value = ''; renderPed();
+  showDoc(blob, docName('P', p.id, p.bodega), `Pedido ${nDoc('P', p.id)}`, `Bodega ${p.bodega} · ${items.length} productos. Quedó guardado en "Pedidos enviados".`);
+}, () => updPedBar());
 $('#pedSeg').onclick = e => { const b = e.target.closest('button'); if (!b) return;
   $$('#pedSeg button').forEach(x => x.classList.toggle('on', x === b));
   const env = b.dataset.t === 'env'; $('#pedArmar').classList.toggle('hidden', env); $('#pedEnv').classList.toggle('hidden', !env); $('#pedBar').classList.toggle('hidden', env);
@@ -944,11 +1183,12 @@ async function loadPedidos() {
     <div class="h"><b>${d.toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short' })} · ${d.toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' })}</b><span>${esc(p.responsable || '—')}</span></div>
     ${p.nota ? `<div style="font-size:12.5px;color:var(--ink2);margin-top:2px">📝 ${esc(p.nota)}</div>` : ''}
     <ul>${p.items.map(x => `<li>${esc(x.nombre)}: <b>${fmt(x.cantidad)} ${esc(plural(x.presentacion, x.cantidad))}</b></li>`).join('')}</ul>
-    <div style="display:flex;gap:8px;margin-top:8px"><button class="btn g" data-re="${k}" style="padding:8px 12px;font-size:13px">Reenviar</button><button class="btn g" data-cp="${k}" style="padding:8px 12px;font-size:13px">Usar como base</button></div>
+    <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><button class="btn p" data-pdf="${k}" style="padding:8px 12px;font-size:13px">📄 ${nDoc('P', p.id)}</button><button class="btn g" data-re="${k}" style="padding:8px 12px;font-size:13px">💬 Texto</button><button class="btn g" data-cp="${k}" style="padding:8px 12px;font-size:13px">Usar como base</button></div>
   </div>` }).join('') + '</div>' : '<div class="panel empty">Todavía no se han enviado pedidos.</div>';
 }
 $('#pedEnv').onclick = async e => {
-  const re = e.target.dataset.re, cp = e.target.dataset.cp;
+  const re = e.target.dataset.re, cp = e.target.dataset.cp, pdf = e.target.closest('[data-pdf]');
+  if (pdf) { const p = state.pedidos[+pdf.dataset.pdf]; return withDoc(pdf, async () => showDoc(await pedidoPDF(p), docName('P', p.id, p.bodega), `Pedido ${nDoc('P', p.id)}`, `Bodega ${p.bodega} · ${p.items.length} productos.`)) }
   if (re != null) { const p = state.pedidos[+re]; window.open('https://wa.me/?text=' + encodeURIComponent(pedTxt(p.items, p.nota, p.created_at, p.bodega)), '_blank') }
   if (cp != null) { state.pedidos[+cp].items.forEach(x => { if (state.ins.some(i => i.id === x.insumo_id)) state.ped[x.insumo_id] = { v: String(x.cantidad), p: x.presentacion, x: 1 } }); savePed(); $('#pedSeg button[data-t=armar]').click(); renderPed(); toast('Pedido cargado · ajusta las cantidades') }
 };
@@ -992,7 +1232,31 @@ function renderHist() {
   const g = {}; h.forEach(m => { const d = new Date(m.created_at).toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); (g[d] ||= []).push(m) });
   $('#hList').innerHTML = res + Object.entries(g).map(([d, ms]) => `<div class="day">${d.charAt(0).toUpperCase() + d.slice(1)}</div><div class="list">${ms.map(mvRow).join('')}</div>`).join('');
 }
-$('#hGo').onclick = loadHist; $('#hTipo').onchange = loadHist; $('#hq').oninput = renderHist; $('#hPres').onchange = renderHist;
+$('#hTipo').onchange = loadHist; $('#hq').oninput = () => state.hModo === 'ent' ? renderEnt() : renderHist(); $('#hPres').onchange = renderHist;
+async function loadEnt() {
+  const f = $('#hFrom').value, t = $('#hTo').value;
+  const from = f ? new Date(f + 'T00:00:00').toISOString() : null, to = t ? new Date(new Date(t + 'T00:00:00').getTime() + 864e5).toISOString() : null;
+  $('#hEnt').innerHTML = '<div class="spin"></div>';
+  try { state.ents = await api.entregas({ from, to }) } catch (e) { $('#hEnt').innerHTML = `<div class="empty">${esc(e.message)}</div>`; return }
+  renderEnt();
+}
+function renderEnt() {
+  const q = $('#hq').value.toLowerCase();
+  const es = (state.ents || []).filter(e => !q || e.items.some(x => x.nombre.toLowerCase().includes(q)) || (e.punto + ' ' + e.recibe + ' ' + nDoc('E', e.id)).toLowerCase().includes(q));
+  $('#hEnt').innerHTML = es.length ? '<div class="list">' + es.map(e => `<div class="ent">
+    <div class="h"><b>${nDoc('E', e.id)} · ${esc(e.punto)}</b><span>${new Date(e.created_at).toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })} · ${new Date(e.created_at).toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' })}</span></div>
+    <div class="who">Entregó <b>${esc(e.entrega || '—')}</b> · Recibió <b>${esc(e.recibe)}</b>${e.nota ? ' · ' + esc(e.nota) : ''}</div>
+    <ul>${e.items.map(x => `<li>${esc(x.nombre)}: <b>${esc(qtyTxt(+x.cantidad, x.presentacion, null, x.unidad_base))}</b></li>`).join('')}</ul>
+    <button class="btn p" data-epdf="${e.id}" style="padding:8px 12px;font-size:13px;margin-top:8px">📄 Comprobante PDF</button>
+  </div>`).join('') + '</div>' : '<div class="panel empty">No hay entregas en ese rango de fechas.</div>';
+}
+$('#hEnt').onclick = e => { const b = e.target.closest('[data-epdf]'); if (!b) return; const en = state.ents.find(x => x.id === +b.dataset.epdf);
+  withDoc(b, async () => showDoc(await entregaPDF(en), docName('E', en.id, en.bodega), `Comprobante ${nDoc('E', en.id)}`, `${en.punto} · recibe ${en.recibe}`)) };
+$('#hSeg').onclick = e => { const b = e.target.closest('button'); if (!b) return; $$('#hSeg button').forEach(x => x.classList.toggle('on', x === b)); state.hModo = b.dataset.t;
+  const ent = b.dataset.t === 'ent'; $('#hEnt').classList.toggle('hidden', !ent); $('#hList').classList.toggle('hidden', ent); $('#hSum').classList.toggle('hidden', ent || !state.histF?.length);
+  $('#hTipo').closest('.field').classList.toggle('hidden', ent); $('#hPres').closest('.field').classList.toggle('hidden', ent); $('#hCsv').classList.toggle('hidden', ent);
+  if (ent) loadEnt(); else loadHist() };
+$('#hGo').onclick = () => state.hModo === 'ent' ? loadEnt() : loadHist();
 $('#hCsv').onclick = () => {
   const h = state.histF || []; if (!h.length) return toast('Primero consulta un rango con movimientos', 1);
   const cell = v => `"${String(v ?? '').replace(/"/g, '""')}"`, num = v => v == null ? '' : String(r6(+v)).replace('.', ',');
@@ -1006,7 +1270,7 @@ $('#hCsv').onclick = () => {
 function goView(v) {
   $$('nav button').forEach(x => x.classList.toggle('on', x.dataset.v === v));
   ['inv', 'sal', 'ped', 'his'].forEach(k => $('#v-' + k).classList.toggle('hidden', k !== v));
-  if (v === 'his') loadHist();
+  if (v === 'his') (state.hModo === 'ent' ? loadEnt() : loadHist());
   scrollTo(0, 0);
 }
 $$('nav button').forEach(b => b.onclick = () => goView(b.dataset.v));
@@ -1028,7 +1292,7 @@ function setBodega(b) {
   state.bodega = b; ls.set('mp_bodega', b); $('#bodName').textContent = b;
   $$('.bodlbl').forEach(e => e.textContent = '· ' + b); $$('.bodname').forEach(e => e.textContent = b);
   state.batch = {}; state.hist = []; state.histF = []; $('#hList').innerHTML = ''; $('#hSum').classList.add('hidden');
-  state.ped = ls.get(pedKey(), {});
+  state.ped = ls.get(pedKey(), {}); fillPuntos();
   document.title = `Materia Prima · ${b} · La Vaca Original`;
   if (changed) toast(`Ahora trabajas en Bodega ${b}`);
   $('#invList').innerHTML = '<div class="spin"></div>';
